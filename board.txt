@@ -1,0 +1,9 @@
+Kinetis L series
+    KL2x Family
+        KL25Z (48 MHz) Family
+            MKL25Z128
+Connection: OpenSDA
+Language: C
+Floating Point: Software
+No I/O
+ARM Build Tools: GCC
