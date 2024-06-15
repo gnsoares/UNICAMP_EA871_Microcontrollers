@@ -26,38 +26,27 @@ void FTM1_IRQHandler() {
 
     // TOF
     if (TPM1_SC & TPM_SC_TOIE_MASK && TPM1_STATUS & (TPM_STATUS_TOF_MASK)) {
-        if (tempo == 0) {
+    	if (tempo == 0) {
             valor = (uint16_t)((pacman[i] * 20971520) / 128);  // seta nova nota
-
             TPM_setaMOD(1, valor);
             TPM_setaCnV(1, 1, (uint16_t)(valor * 0.5));  // amplitude: 1/2 potencia
-
-            tempo++;
-        } else if (tempo >= 0x29) {
-            tempo = 0;
-            i++;
-            if (i == 32) i = 0;  // repete a sequencia
-        } else {
-            tempo++;  // ~1.6s
         }
+    	if (tempo < 50){
+    		tempo++;
+    	} else {
+    		TPM_setaMOD(1, 0);
+    		TPM_setaCnV(1, 1, 0);
+    		tempo = 0;
+    		TPM_desabilitaInterrupTOF(1);
+    	}
         TPM1_SC |= TPM_SC_TOF_MASK;
-    }
-    // borda de descida de PTA12
-    else if (TPM1_C0SC & TPM_CnSC_CHIE_MASK && TPM1_C0SC & TPM_CnSC_CHF_MASK) {
-        if (state == INICIO) {
-            TPM2_C0V = TPM2_CNT;  // referencia e o valor atual do contador
-            TPM_habilitaInterrupCH(2, 0);
-            TPM_desabilitaInterrupCH(1, 0);  // desabilita interrupcao do botao
-            state = PREPARA_AUDITIVO;
-        }
-        TPM1_C0SC |= TPM_CnSC_CHF_MASK;
     }
 }
 
 void PORTA_IRQHandler() {
     if (PORTA_PCR4 & PORT_PCR_ISF_MASK) {
         if (estado == PLAYER_TURN && player == PLAYER_1) {
-            // TODO: play hit sound
+            TPM_habilitaInterrupTOF(1);  // play hit sound
             // TODO: disable interrupt of button
             // TODO: check timing of press
             // TODO: change ball vx and vy accordingly
@@ -67,7 +56,7 @@ void PORTA_IRQHandler() {
         PORTA_PCR4 |= PORT_PCR_ISF_MASK;  // w1c: limpa flag de interrupcao
     } else if (PORTA_PCR5 & PORT_PCR_ISF_MASK) {
         if (estado == PLAYER_TURN && player == PLAYER_2) {
-            // TODO: play hit sound
+            TPM_habilitaInterrupTOF(1);  // play hit sound
             // TODO: disable interrupt of button
             // TODO: check timing of press
             // TODO: change ball vx and vy accordingly
