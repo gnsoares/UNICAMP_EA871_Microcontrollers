@@ -1,5 +1,6 @@
 #include "game.h"
 
+#include "ISR.h"
 #include "mcu.h"
 
 void game_loop(uint8_t sets_to_win) {
