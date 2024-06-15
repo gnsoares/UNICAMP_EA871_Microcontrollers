@@ -1,3 +1,11 @@
+/**
+ * @file game.c
+ * @author Gustavo Nascimento Soares
+ * @author João Pedro Souza Pascon
+ * @brief
+ * @date 2024-06-15
+ */
+
 #include "game.h"
 
 #include "ISR.h"
@@ -52,7 +60,6 @@ void game_loop(uint8_t sets_to_win) {
 void board_reset(board_t *board) {
     board->ball_pos.x = 0;
     board->ball_pos.y = 0;
-    // TODO: init random vel
     board->ball_vel.x = 0;
     board->ball_vel.y = 0;
     board->score.p1_sets = 0;

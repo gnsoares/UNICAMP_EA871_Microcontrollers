@@ -6,13 +6,13 @@
  * @author Gustavo Nascimento Soares
  */
 
-#include "derivative.h"
+#include "mcu.h"
 #include "util.h"
 
-void GPIO_initSwitches(uint8_t NMI_IRQC,
-                       uint8_t IRQA5_IRQC,
-                       uint8_t IRQA12_IRQC,
-                       uint8_t prioridade) {
+void GPIO_switches_init(uint8_t NMI_IRQC,
+                        uint8_t IRQA5_IRQC,
+                        uint8_t IRQA12_IRQC,
+                        uint8_t prioridade) {
     // Habilita o clock do modulo PORTA para botoeiras
     SIM_SCGC5 |= SIM_SCGC5_PORTA_MASK;
 
@@ -55,10 +55,18 @@ void GPIO_initSwitches(uint8_t NMI_IRQC,
     return;
 }
 
-void GPIO_desativaSwitchesNVICInterrupt() {
+void GPIO_switches_NVIC_interrupt_desativa() {
     NVIC_ICER = NVIC_ICER_CLRENA(GPIO_PIN(30));  // Desativa IRQ30 (PORTA)
 }
 
-void GPIO_reativaSwitchesNVICInterrupt() {
+void GPIO_switches_NVIC_interrupt_ativa() {
     NVIC_ISER = NVIC_ISER_SETENA(GPIO_PIN(30));  // Reativa IRQ30 (PORTA)
+}
+
+void GPIO_switches_IRQAn_interrupt_desativa(uint8_t n) {
+    PORT_PCR_REG(PORTA_BASE_PTR, n) &= ~PORT_PCR_ISF_MASK | PORT_PCR_IRQC(0b1111);
+}
+
+void GPIO_switches_IRQAn_interrupt_ativa(uint8_t n, uint8_t IRQC) {
+    PORT_PCR_REG(PORTA_BASE_PTR, n) |= PORT_PCR_ISF_MASK | PORT_PCR_IRQC(IRQC);
 }

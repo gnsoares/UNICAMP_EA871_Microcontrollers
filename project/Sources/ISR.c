@@ -7,12 +7,10 @@
  * @date 04/05/2024
  */
 
-// Inclusao de macros do IDE
-#include "derivative.h"
-
-// Inclusao de prototipos
 #include "ISR.h"
-#include "TPM.h"
+
+#include "game.h"
+#include "mcu.h"
 #include "util.h"
 
 static state_t state;
@@ -26,26 +24,26 @@ void FTM1_IRQHandler() {
 
     // TOF
     if (TPM1_SC & TPM_SC_TOIE_MASK && TPM1_STATUS & (TPM_STATUS_TOF_MASK)) {
-    	if (tempo == 0) {
+        if (tempo == 0) {
             valor = (uint16_t)((pacman[i] * 20971520) / 128);  // seta nova nota
             TPM_setaMOD(1, valor);
             TPM_setaCnV(1, 1, (uint16_t)(valor * 0.5));  // amplitude: 1/2 potencia
         }
-    	if (tempo < 50){
-    		tempo++;
-    	} else {
-    		TPM_setaMOD(1, 0);
-    		TPM_setaCnV(1, 1, 0);
-    		tempo = 0;
-    		TPM_desabilitaInterrupTOF(1);
-    	}
+        if (tempo < 50) {
+            tempo++;
+        } else {
+            TPM_setaMOD(1, 0);
+            TPM_setaCnV(1, 1, 0);
+            tempo = 0;
+            TPM_desabilitaInterrupTOF(1);
+        }
         TPM1_SC |= TPM_SC_TOF_MASK;
     }
 }
 
 void PORTA_IRQHandler() {
     if (PORTA_PCR4 & PORT_PCR_ISF_MASK) {
-        if (estado == PLAYER_TURN && player == PLAYER_1) {
+        if (state == PLAYER_TURN && player == PLAYER_1) {
             TPM_habilitaInterrupTOF(1);  // play hit sound
             // TODO: disable interrupt of button
             // TODO: check timing of press
@@ -55,7 +53,7 @@ void PORTA_IRQHandler() {
         }
         PORTA_PCR4 |= PORT_PCR_ISF_MASK;  // w1c: limpa flag de interrupcao
     } else if (PORTA_PCR5 & PORT_PCR_ISF_MASK) {
-        if (estado == PLAYER_TURN && player == PLAYER_2) {
+        if (state == PLAYER_TURN && player == PLAYER_2) {
             TPM_habilitaInterrupTOF(1);  // play hit sound
             // TODO: disable interrupt of button
             // TODO: check timing of press
@@ -65,9 +63,9 @@ void PORTA_IRQHandler() {
         }
         PORTA_PCR5 |= PORT_PCR_ISF_MASK;  // w1c: limpa flag de interrupcao
     } else if (PORTA_PCR12 & PORT_PCR_ISF_MASK) {
-        if (estado == INICIO) {
+        if (state == INICIO) {
             // TODO: disable interrupt of button
-            estado = LAUNCH_BALL;
+            state = LAUNCH_BALL;
         }
         PORTA_PCR5 |= PORT_PCR_ISF_MASK;  // w1c: limpa flag de interrupcao
     }

@@ -1,13 +1,12 @@
 /*!
  * @file TPM.c
  * @brief Este modulo contem interface dos m�dulos TPMx.
- * @author Wu Shin Ting
  * @author Gustavo Nascimento Soares
  * @author João Pedro Souza Pascon
  * @date 26/01/2023
  */
 
-#include "derivative.h"
+#include "mcu.h"
 
 static TPM_MemMapPtr TPM[] = TPM_BASE_PTRS;
 

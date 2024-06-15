@@ -1,3 +1,11 @@
+/**
+ * @file mcu.h
+ * @author Gustavo Nascimento Soares
+ * @author João Pedro Souza Pascon
+ * @brief
+ * @date 2024-06-15
+ */
+
 #ifndef _GAME_H
 #define _GAME_H
 

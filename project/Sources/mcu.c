@@ -1,3 +1,11 @@
+/**
+ * @file mcu.c
+ * @author Gustavo Nascimento Soares
+ * @author João Pedro Souza Pascon
+ * @brief
+ * @date 2024-06-15
+ */
+
 #include "mcu.h"
 
 void config(void) {
@@ -10,13 +18,13 @@ void config(void) {
     OSC_LPO1kHz();
 
     // Inicializa conexao com LCD
-    GPIO_ativaConLCD();
+    GPIO_LCD_ativa_con();
 
     // Inicializa LCD
-    GPIO_initLCD();
+    GPIO_LCD_init();
 
     // Inicializa botoes
-    GPIO_initSwitches(
+    GPIO_switches_init(
         0b1010,  // NMI: falling edge
         0b1010,  // IRQA5: falling edge
         0b1010,  // IRQA12: falling edge
