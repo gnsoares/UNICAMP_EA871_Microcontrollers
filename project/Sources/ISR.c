@@ -19,13 +19,12 @@ static player_t player = PLAYER_1;
 // TODO: review this function
 void FTM1_IRQHandler() {
     static uint16_t tempo = 0;
-    static uint16_t i = 0;
     uint16_t valor;
 
     // TOF
     if (TPM1_SC & TPM_SC_TOIE_MASK && TPM1_STATUS & (TPM_STATUS_TOF_MASK)) {
         if (tempo == 0) {
-            valor = (uint16_t)((pacman[i] * 20971520) / 128);  // seta nova nota
+            valor = (uint16_t)((0.003405 * 20971520) / 128);  // seta nova nota
             TPM_setaMOD(1, valor);
             TPM_setaCnV(1, 1, (uint16_t)(valor * 0.5));  // amplitude: 1/2 potencia
         }

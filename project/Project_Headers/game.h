@@ -25,24 +25,22 @@ typedef struct {
 } vector_2d_t;
 
 typedef struct {
-    uint8_t p1_sets;
-    uint8_t p2_sets;
-    uint8_t p1_games;
-    uint8_t p2_games;
-    uint8_t p1_points;
-    uint8_t p2_points;
+    uint8_t sets;
+    uint8_t games;
+    uint8_t points;
 } score_t;
 
 typedef struct {
     vector_2d_t ball_pos;
     vector_2d_t ball_vel;
-    score_t score;
+    score_t score[2];
 } board_t;
 
 void game_loop(uint8_t sets_to_win);
 void board_reset(board_t *board);
 void board_update(board_t *board, float dt);
-player_t board_check_winner(board_t *board, uint8_t sets_to_win);
+player_t board_check_winner_match(board_t *board, uint8_t sets_to_win);
 void board_reset_ball(board_t *board);
+void board_update_score(board_t *board, player_t player);
 
 #endif
