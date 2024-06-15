@@ -13,23 +13,14 @@ static TPM_MemMapPtr TPM[] = TPM_BASE_PTRS;
 
 void TPM_config_basica() {
     /**
-     * Habilita os sinais de rel�gio para TPM2
+     * Habilita os sinais de rel�gio para TPM1
      */
-    SIM_SCGC6 |= SIM_SCGC6_TPM0_MASK | SIM_SCGC6_TPM1_MASK | SIM_SCGC6_TPM2_MASK;
+    SIM_SCGC6 |= SIM_SCGC6_TPM1_MASK;
 
     /**
      * Configura pinos PT
      */
-    SIM_SCGC5 |= SIM_SCGC5_PORTA_MASK | SIM_SCGC5_PORTE_MASK;  // habilita sinais de relogio
-
-    // evitar erros com o botao NMI
-    PORTA_PCR4 = PORT_PCR_MUX(0);
-
-    /**
-     * Configura os modulos PORTA_PCR5 e PORTA_PCR12
-     */
-    PORTA_PCR5 = (PORTA_PCR5 & ~0x700u) | PORT_PCR_MUX(0x3);    // TPM0_CH2
-    PORTA_PCR12 = (PORTA_PCR12 & ~0x700u) | PORT_PCR_MUX(0x3);  // TPM1_CH0
+    SIM_SCGC5 |= SIM_SCGC5_PORTE_MASK;  // habilita sinais de relogio
 
     PORTE_PCR21 |= (PORT_PCR_ISF_MASK |  // TPM1_CH1
                     PORT_PCR_MUX(0x3) |

@@ -4,6 +4,7 @@
 #include "GPIO_latch_lcd.h"
 #include "GPIO_switches.h"
 #include "RTC.h"
+#include "SIM.h"
 #include "TPM.h"
 
 void config(void);
