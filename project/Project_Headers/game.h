@@ -32,7 +32,7 @@ typedef struct {
 } board_t;
 
 void game_loop(uint8_t sets_to_win);
-void board_init(board_t *board);
+void board_reset(board_t *board);
 void board_update(board_t *board, float dt);
 player_t board_check_winner(board_t *board, uint8_t sets_to_win);
 void board_reset_ball(board_t *board);

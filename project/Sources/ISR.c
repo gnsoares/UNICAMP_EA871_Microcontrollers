@@ -16,7 +16,9 @@
 #include "util.h"
 
 static state_t state;
+static player_t player = PLAYER_1;
 
+// TODO: review this function
 void FTM1_IRQHandler() {
     static uint16_t tempo = 0;
     static uint16_t i = 0;
@@ -52,10 +54,48 @@ void FTM1_IRQHandler() {
     }
 }
 
+void PORTA_IRQHandler() {
+    if (PORTA_PCR4 & PORT_PCR_ISF_MASK) {
+        if (estado == PLAYER_TURN && player == PLAYER_1) {
+            // TODO: play hit sound
+            // TODO: disable interrupt of button
+            // TODO: check timing of press
+            // TODO: change ball vx and vy accordingly
+            ISR_swapPlayer();
+            // TODO: enable interrupt of other player's button
+        }
+        PORTA_PCR4 |= PORT_PCR_ISF_MASK;  // w1c: limpa flag de interrupcao
+    } else if (PORTA_PCR5 & PORT_PCR_ISF_MASK) {
+        if (estado == PLAYER_TURN && player == PLAYER_2) {
+            // TODO: play hit sound
+            // TODO: disable interrupt of button
+            // TODO: check timing of press
+            // TODO: change ball vx and vy accordingly
+            ISR_swapPlayer();
+            // TODO: enable interrupt of other player's button
+        }
+        PORTA_PCR5 |= PORT_PCR_ISF_MASK;  // w1c: limpa flag de interrupcao
+    } else if (PORTA_PCR12 & PORT_PCR_ISF_MASK) {
+        if (estado == INICIO) {
+            // TODO: disable interrupt of button
+            estado = LAUNCH_BALL;
+        }
+        PORTA_PCR5 |= PORT_PCR_ISF_MASK;  // w1c: limpa flag de interrupcao
+    }
+}
+
 void ISR_setState(state_t s) {
     state = s;
 }
 
 state_t ISR_getState(void) {
     return state;
+}
+
+player_t ISR_getPlayer(void) {
+    return player;
+}
+
+void ISR_swapPlayer(void) {
+    player = (player == PLAYER_1 ? PLAYER_2 : PLAYER_1);
 }

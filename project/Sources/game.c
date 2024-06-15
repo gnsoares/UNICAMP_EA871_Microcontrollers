@@ -4,14 +4,15 @@
 #include "mcu.h"
 
 void game_loop(uint8_t sets_to_win) {
-    player_t player = PLAYER_1, winner = PLAYER_NONE;
+    player_t winner = PLAYER_NONE;
     board_t board;
     float t1, t2;
-    board_init(&board);
+    ISR_setState(PREPARA_INICIO);
     t1 = get_time();
     while (1) {
         switch (ISR_getState()) {
             case PREPARA_INICIO:
+                board_reset(&board);
                 // TODO: seta tela de inicio OLED
                 // TODO: habilita interrupt IRQA12
                 ISR_setState(INICIO);
@@ -22,12 +23,13 @@ void game_loop(uint8_t sets_to_win) {
             case LAUNCH_BALL:
                 board_reset_ball(&board);
                 ISR_setState(PLAYER_TURN);
+                // TODO: enable interrupt of button of the player where the ball went towards
+                // player = player where the ball went towards;
                 break;
             case PLAYER_TURN:
                 t2 = get_time();
                 board_update(&board, t2 - t1);
-                // TODO: wait for button press (IRQHandler)
-                player = (player == PLAYER_1 ? PLAYER_2 : PLAYER_1);
+                // TODO: update OLED
                 t1 = t2;
             case LCD_UPDATE:
                 // TODO: update lcd with points
@@ -47,7 +49,7 @@ void game_loop(uint8_t sets_to_win) {
     }
 }
 
-void board_init(board_t *board) {
+void board_reset(board_t *board) {
     board->ball_pos.x = 0;
     board->ball_pos.y = 0;
     // TODO: init random vel
