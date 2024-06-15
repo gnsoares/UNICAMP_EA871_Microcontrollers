@@ -28,9 +28,22 @@ void config(void) {
 
     SIM_setaTPMSRC(0b01);  // MCGFLLCLK clock or MCGPLLCLK/2
     TPM_config_basica();
-    TPM_config_especifica(1, 16384, 0b1111, 0, 0, 0, 0, 0, 0b111);  // (16384*128)/20971520 = 0.1s
-    TPM_CH_config_especifica(1, 1, 0b1010, 0);                      // PWM
-    TPM_habilitaNVICIRQ(18, 3);                                     // TPM1
+    TPM_config_especifica(1,          // TPM1
+                          16384,      // MOD
+                          0b1111,     // Trigger = NO TRIGGER
+                          0,          // Reset On Trigger DISABLE
+                          0,          // Stop On Overflow DISABLE
+                          0,          // Start On Trigger DISABLE
+                          0,          // DMA DISABLE
+                          0,          // Counting Mode = ASCENDING
+                          0b111       // log2(PS) => PS = 2^7 == 128
+    );                                // (16384*128)/20971520 = 0.1s
+    TPM_CH_config_especifica(1,       // TPM1
+                             1,       // CH1
+                             0b1010,  // Mode = Edge-aligned PWM
+                             0        // TPM1_C1V
+    );
+    TPM_habilitaNVICIRQ(18, 3);  // TPM1
 }
 
 float get_time(void) {
