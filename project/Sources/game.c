@@ -13,37 +13,37 @@
 
 void game_loop(uint8_t sets_to_win) {
     player_t winner_match = PLAYER_NONE, winner_point = PLAYER_NONE;
-    board_t board;
+    board_t *board = ISR_getBoard();
     float t1, t2;
     ISR_setState(PLAYER_TURN);
     t1 = get_time();
     while (1) {
         switch (ISR_getState()) {
             case PREPARA_INICIO:
-                board_reset(&board);
+                board_reset(board);
                 // TODO: seta tela de inicio OLED
                 // TODO: habilita interrupt IRQA12
                 ISR_setState(INICIO);
-                board_init_LCD(&board);
+                board_init_LCD(board);
                 break;
             case INICIO:
                 // do nothing
                 break;
             case LAUNCH_BALL:
-                board_reset_ball(&board);
+                board_reset_ball(board);
                 ISR_setState(PLAYER_TURN);
                 // TODO: enable interrupt of button of the player where the ball went towards
                 // player = player where the ball went towards;
                 break;
             case PLAYER_TURN:
                 t2 = get_time();
-                board_update(&board, t2 - t1);
-                board_display(&board);
+                board_update(board, t2 - t1);
+                board_display(board);
                 // TODO: check for point winner
                 t1 = t2;
             case LCD_UPDATE:
-                board_update_score(&board, winner_point);
-                winner_match = board_check_winner_match(&board, sets_to_win);
+                board_update_score(board, winner_point);
+                winner_match = board_check_winner_match(board, sets_to_win);
                 ISR_setState(winner_match != PLAYER_NONE ? WIN_SCREEN : LAUNCH_BALL);
                 break;
             case WIN_SCREEN:
@@ -72,8 +72,8 @@ void board_reset(board_t *board) {
     board->score[1].points = 0;
 }
 
-void board_update(board_t *board, float dt) {
-    uint8_t v_prev;
+void board_update(board_t *board, uint8_t dt) {
+    float v_prev;
     // x_{k} = x_{k-1} + vx * dt
     board->ball_pos.x += board->ball_vel.x * dt;
     // vy_{k} = vy_{k-1} + g * dt

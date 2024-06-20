@@ -20,8 +20,8 @@ typedef enum {
 } player_t;
 
 typedef struct {
-    uint8_t x;
-    uint8_t y;
+    float x;
+    float y;
 } vector_2d_t;
 
 typedef struct {
@@ -38,7 +38,7 @@ typedef struct {
 
 void game_loop(uint8_t sets_to_win);
 void board_reset(board_t *board);
-void board_update(board_t *board, float dt);
+void board_update(board_t *board, uint8_t dt);
 player_t board_check_winner_match(board_t *board, uint8_t sets_to_win);
 void board_reset_ball(board_t *board);
 void board_update_score(board_t *board, player_t player);

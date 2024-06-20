@@ -13,6 +13,8 @@
 #include <stdint.h>
 
 #include "game.h"
+#include "mcu.h"
+#include "util.h"
 
 typedef enum {
     PREPARA_INICIO,
@@ -40,5 +42,6 @@ state_t ISR_getState(void);
 
 player_t ISR_getPlayer(void);
 void ISR_swapPlayer(void);
+board_t* ISR_getBoard(void);
 
 #endif /* ISR_H_ */

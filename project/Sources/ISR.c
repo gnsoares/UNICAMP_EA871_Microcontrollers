@@ -9,12 +9,9 @@
 
 #include "ISR.h"
 
-#include "game.h"
-#include "mcu.h"
-#include "util.h"
-
 static state_t state;
 static player_t player = PLAYER_1;
+static board_t board;
 
 // TODO: review this function
 void FTM1_IRQHandler() {
@@ -84,4 +81,8 @@ player_t ISR_getPlayer(void) {
 
 void ISR_swapPlayer(void) {
     player = (player == PLAYER_1 ? PLAYER_2 : PLAYER_1);
+}
+
+board_t* ISR_getBoard(void) {
+    return &board;
 }
