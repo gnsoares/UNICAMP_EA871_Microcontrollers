@@ -15,7 +15,7 @@ void game_loop(uint8_t sets_to_win) {
     player_t winner_match = PLAYER_NONE, winner_point = PLAYER_NONE;
     board_t board;
     float t1, t2;
-    ISR_setState(PREPARA_INICIO);
+    ISR_setState(PLAYER_TURN);
     t1 = get_time();
     while (1) {
         switch (ISR_getState()) {
@@ -38,7 +38,7 @@ void game_loop(uint8_t sets_to_win) {
             case PLAYER_TURN:
                 t2 = get_time();
                 board_update(&board, t2 - t1);
-                // TODO: update OLED
+                board_display(&board);
                 // TODO: check for point winner
                 t1 = t2;
             case LCD_UPDATE:
@@ -190,4 +190,20 @@ void board_update_LCD_points(board_t *board) {
         GPIO_LCD_escreve_string(line_offset | 0x0e, (uint8_t *)string);
         player = (player == PLAYER_1 ? PLAYER_2 : PLAYER_NONE);
     }
+}
+
+void board_display(board_t *board) {
+    int i, j;
+    // court
+    for (i = SCREEN_HEIGHT - 6; i < SCREEN_HEIGHT - 4; i++) {
+        for (j = 8; j < SCREEN_WIDTH - 8; j++) {
+            I2C_OLED_setPixel(j, i);
+        }
+    }
+    for (i = SCREEN_HEIGHT - 24; i < SCREEN_HEIGHT - 6; i++) {
+        for (j = SCREEN_WIDTH / 2 - 1; j < SCREEN_WIDTH / 2 + 1; j++) {
+            I2C_OLED_setPixel(j, i);
+        }
+    }
+    I2C_OLED_redisplay();
 }

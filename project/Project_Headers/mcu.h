@@ -13,9 +13,14 @@
 
 #include "GPIO_lcd.h"
 #include "GPIO_switches.h"
+#include "I2C_OLED.h"
+#include "OSC.h"
 #include "RTC.h"
 #include "SIM.h"
 #include "TPM.h"
+
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 64
 
 void config(void);
 float get_time(void);

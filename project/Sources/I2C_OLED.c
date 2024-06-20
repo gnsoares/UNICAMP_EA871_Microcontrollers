@@ -1,412 +1,166 @@
 /**
- * @file I2C.c
- * @brief Basic functions for I2C module
+ * @file I2C_OLED.c
+ * @brief Functions related to the OLED display with controller SSD1306
  * @date 22/06/2023
  * @author Wu Shin-Ting
- * @note https://embarcados.com.br/biblioteca-i2c-para-frdm-kl25z/
- * 
  */
 
+#include "I2C_OLED.h"
+
 #include "I2C.h"
- 
-static I2C_MemMapPtr I2C[] = I2C_BASE_PTRS;
+#include "string.h"
 
-/****************************************************************************************
-*
-*****************************************************************************************/
-bool I2C_Init(uint8_t x, uint8_t alt, uint8_t mult, uint8_t icr)
-{
-    if(x == 0)
-    {
-        switch(alt)
-        {
-            case ALT0:
-                SIM_SCGC5 |= SIM_SCGC5_PORTE_MASK;      //Turn on clock to E module
-                PORTE_PCR24 |= PORT_PCR_MUX(0x5);        //Set PTE24 to mux 5 [I2C_SCL]
-                PORTE_PCR25 |= PORT_PCR_MUX(0x5);        //Set PTE25 to mux 5 [I2C_SDA]
-            break;
- 
-            case ALT1:
-                SIM_SCGC5 |= SIM_SCGC5_PORTB_MASK;      //Turn on clock to E module
-                PORTB_PCR0 |= PORT_PCR_MUX(0x2);            //Set PTB0 to mux 2 [I2C_SCL]
-                PORTB_PCR1 |= PORT_PCR_MUX(0x2);            //Set PTB1 to mux 2 [I2C_SDA]
-            break;
- 
-            case ALT2:
-                SIM_SCGC5 |= SIM_SCGC5_PORTB_MASK;      //Turn on clock to E module
-                PORTB_PCR2 |= PORT_PCR_MUX(0x2);            //Set PTB2 to mux 2 [I2C_SCL]
-                PORTB_PCR3 |= PORT_PCR_MUX(0x2);            //Set PTB3 to mux 2 [I2C_SDA]
-            break;
- 
-            case ALT3:
-                SIM_SCGC5 |= SIM_SCGC5_PORTC_MASK;      //Turn on clock to E module
-                PORTC_PCR8 |= PORT_PCR_MUX(0x2);            //Set PTB2 to mux 2 [I2C_SCL]
-                PORTC_PCR9 |= PORT_PCR_MUX(0x2);            //Set PTB3 to mux 2 [I2C_SDA]
-            break;
- 
-            default:
-                return false;
-            break;
-        }
-        SIM_SCGC4 |= SIM_SCGC4_I2C0_MASK;
-    }
-    else if (x == 1)
-    {
-        switch(alt)
-        {
-            case ALT0:
-                SIM_SCGC5 |= SIM_SCGC5_PORTE_MASK;      //Turn on clock to E module
-                PORTE_PCR0 |= PORT_PCR_MUX(0x6);            //Set PTE0 to mux 6 [I2C_SDA]
-                PORTE_PCR1 |= PORT_PCR_MUX(0x6);            //Set PTE1 to mux 6 [I2C_SCL]
-            break;
- 
-            case ALT1:
-                SIM_SCGC5 |= SIM_SCGC5_PORTA_MASK;      //Turn on clock to A module
-                PORTA_PCR3 |= PORT_PCR_MUX(0x2);            //Set PTA3 to mux 2 [I2C_SCL]
-                PORTA_PCR4 |= PORT_PCR_MUX(0x2);            //Set PTA4 to mux 2 [I2C_SDA]
-            break;
- 
-            case ALT2:
-                SIM_SCGC5 |= SIM_SCGC5_PORTC_MASK;      //Turn on clock to C module
-                PORTC_PCR1 |= PORT_PCR_MUX(0x2);            //Set PTC1 to mux 2 [I2C_SCL]
-                PORTC_PCR2 |= PORT_PCR_MUX(0x2);            //Set PTC2 to mux 2 [I2C_SDA]
-            break;
- 
-            case ALT3:
-                SIM_SCGC5 |= SIM_SCGC5_PORTC_MASK;      //Turn on clock to E module
-                PORTC_PCR10 |= PORT_PCR_MUX(0x2);        //Set PTC10 to mux 2 [I2C_SCL]
-                PORTC_PCR11 |= PORT_PCR_MUX(0x2);        //Set PTC11 to mux 2 [I2C_SDA]
-            break;
- 
-            default:
-                return false;
-            break;
-        }
-        SIM_SCGC4 |= SIM_SCGC4_I2C1_MASK;
-    }
-    else
-    {
-        return false;
-    }
-    I2C[x]->F = I2C_F_ICR(icr) | I2C_F_MULT(mult);
-    
-    I2C[x]->C1 = (I2C_C1_IICEN_MASK |            // I2C Enable
-    			  I2C_C1_IICIE_MASK);			 // I2C Interrupt Enable
-    
-    return true;
-}
-/****************************************************************************************
-*
-*****************************************************************************************/
-void I2C_DisableAck(uint8_t x)
-{
-    I2C[x]->C1 |= I2C_C1_TXAK_MASK;
-}
-/****************************************************************************************
-*
-*****************************************************************************************/
-void I2C_RepeatedStart(uint8_t x)
-{
-    I2C[x]->C1 |= I2C_C1_RSTA_MASK;
-}
-/****************************************************************************************
-*
-*****************************************************************************************/
-void I2C_EnterRxMode(uint8_t x)
-{
-    I2C[x]->C1 &= ~I2C_C1_TX_MASK;
-}
-/****************************************************************************************
-*
-*****************************************************************************************/
-void I2C_Start(uint8_t x)
-{
-    I2C[x]->C1 |= I2C_C1_TX_MASK;
-    I2C[x]->C1 |= I2C_C1_MST_MASK;
-}
-/****************************************************************************************
-*
-*****************************************************************************************/
-void I2C_Stop(uint8_t x)
-{
-    I2C[x]->C1 &= ~I2C_C1_MST_MASK;
-    I2C[x]->C1 &= ~I2C_C1_TX_MASK;
-}
-/****************************************************************************************
-*
-*****************************************************************************************/
-bool I2C_Wait(uint8_t x)
-{
-    uint32_t i = 1000000;
- 
-    while((!(I2C[x]->S & I2C_S_IICIF_MASK)) && i)
-    {
-        i--;
-    }
-    
-    I2C[x]->S |= I2C_S_IICIF_MASK;     //w1c
-    
-    if (i==0) return false;
-    return true;
-}
-/****************************************************************************************
-*
-*****************************************************************************************/
-void I2C_WaitStop(uint8_t x)
-{
+uint8_t init_cmds[] = {
+    SSD1306_DISPLAY_OFF,
+    SSD1306_SET_DISPLAY_CLOCK_DIV_RATIO,
+    0x80,
+    SSD1306_SET_MULTIPLEX_RATIO,
+    0x3F,
+    SSD1306_SET_DISPLAY_OFFSET,
+    0x0,
+    SSD1306_SET_START_LINE | 0x0,
+    SSD1306_CHARGE_PUMP,
+    0x14,
+    SSD1306_MEMORY_ADDR_MODE,
+    0x00,
+    SSD1306_SET_SEGMENT_REMAP | 0x1,
+    SSD1306_COM_SCAN_DIR_DEC,
+    SSD1306_SET_COM_PINS,
+    0x12,
+    SSD1306_SET_CONTRAST_CONTROL,
+    0xCF,
+    SSD1306_SET_PRECHARGE_PERIOD,
+    0xF1,
+    SSD1306_SET_VCOM_DESELECT,
+    0x40,
+    SSD1306_DISPLAY_ALL_ON_RESUME,
+    SSD1306_NORMAL_DISPLAY,
+    SSD1306_DISPLAY_ON,
+};
+
+uint8_t update_cmds[] = {
+    SSD1306_SET_COLUMN_ADDR,
+    0,
+    127,
+    SSD1306_SET_PAGE_ADDR,
+    0,
+    7,
+};
+
+#define SCRBUF_SIZE 1024
+#define SCRBUF_CMD_SIZE (SCRBUF_SIZE + 1)
+static uint8_t scrbuf_cmd[SCRBUF_CMD_SIZE] = {
+    SSD1306_DATA_CONTINUE,
+};
+static uint8_t *const scrbuf = scrbuf_cmd + 1;
+
+void I2C_initConSSD1306(void) {
     /*
-     * It is necessary to wait stop actually taking place and completing
-     * https://community.nxp.com/t5/Kinetis-Microcontrollers/Why-is-there-a-pause-in-I2C-routines/td-p/245449
+     * Initialize module I2C2 for connection
+     * Default bus clock frequency is 20971520 (47,68ns)
+     * SSD1306 controller (display OLED) specifications
+     * (https://datasheethub.com/wp-content/uploads/2022/08/SSD1306.pdf)
+     * baud rate < 400000Hz; Typical value = 115200Hz; Used: 100kHz
+     * mul = 1
+     * 115200 = 20971520/(mul*SCL divider) -> SCL divider = 20971520/(100000*1) = 209,7152
+     * SDA hold time = tHD = 300ns -> SDA hold value = 300/(47,68*1) = 6,292
+     * SCL start hold time = tHSTART = 0.6us -> SCL start hold value = 600/(47,68*1) = 12,58
+     * SCL stop hold time = tSSTOP = 0.6us -> SCL stop hold value = 600/(47,68*1) = 12,58
+     * ICR = 0x22
      */
-    while(I2C[x]->S & I2C_S_BUSY_MASK);
+    I2C_Init(0, ALT1, MULT0, 0x22);
 }
+/****************************************************************************************
+ *
+ *****************************************************************************************/
+void I2C_OLED_clrScrBuf() {
+    memset(scrbuf, 0, SCRBUF_SIZE);
+}
+/****************************************************************************************
+ *
+ *****************************************************************************************/
+void I2C_OLED_redisplay(void) {
+    uint8_t *tmp;
+    uint8_t v[2] = {SSD1306_COMMAND_CONTINUE, 0x00};
+    uint32_t i;
 
-/****************************************************************************************
-*
-*****************************************************************************************/
-void I2C_WriteByte(uint8_t x,uint8_t data)
-{
-    I2C[x]->D = (uint8_t)data;
-}
-/****************************************************************************************
-*
-*****************************************************************************************/
-uint8_t I2C_ReadByte(uint8_t x)
-{
-    return (uint8_t)( I2C[x]->D );
-}
-/****************************************************************************************
-*
-*****************************************************************************************/
-void I2C_WriteData(uint8_t x, uint8_t SlaveAddress,
-					uint8_t data)
-{
-    I2C_Start(x);
-    I2C_WriteByte(x, ((SlaveAddress << 1) | I2C_WRITE));
-    I2C_Wait(x);
- 
-    I2C_WriteByte(x, data);
-    I2C_Wait(x);
- 
-    I2C_Stop(x);
-    
-    I2C_WaitStop(0);
-}
-
-/****************************************************************************************
-*
-*****************************************************************************************/
-uint8_t I2C_ReadData(uint8_t x, uint8_t SlaveAddress)
-{
-    uint8_t res = 0;
- 
-    I2C_Start(x);
-    I2C_WriteByte(x, ((SlaveAddress << 1) | I2C_WRITE));
-    I2C_Wait(x);
- 
-    I2C_RepeatedStart(x);
- 
-    I2C_WriteByte(x, ((SlaveAddress << 1) | I2C_READ));
-    I2C_Wait(x);
- 
-    I2C_EnterRxMode(x);
-    I2C_DisableAck(x);
- 
-    I2C_ReadByte(x);     // to clear TCF
-    
-    I2C_Wait(x);   
-    I2C_Stop(x);
-    res = I2C_ReadByte(x);  //save the read data
-
-    I2C_WaitStop(0);
-    return res;
-}
-/****************************************************************************************
-*
-*****************************************************************************************/
-void I2C_WriteRegister(uint8_t x, uint8_t SlaveAddress,
-                       uint8_t RegisterAddress, uint8_t data)
-{
-    I2C_Start(x);
-    I2C_WriteByte(x, ((SlaveAddress << 1) | I2C_WRITE));
-    I2C_Wait(x);
- 
-    I2C_WriteByte(x, RegisterAddress);
-    I2C_Wait(x);
- 
-    I2C_WriteByte(x, data);
-    I2C_Wait(x);
- 
-    I2C_Stop(x);
-    
-    I2C_WaitStop(0);
-}
-/****************************************************************************************
-*
-*****************************************************************************************/
-uint8_t I2C_ReadRegister(uint8_t x, uint8_t SlaveAddress,uint8_t RegisterAddress)
-{
-    uint8_t res = 0;
- 
-    I2C_Start(x);
-    I2C_WriteByte(x, ((SlaveAddress << 1) | I2C_WRITE));
-    I2C_Wait(x);
- 
-    I2C_WriteByte(x, RegisterAddress);
-    I2C_Wait(x);
- 
-    I2C_RepeatedStart(x);
- 
-    I2C_WriteByte(x, ((SlaveAddress << 1) | I2C_READ));
-    I2C_Wait(x);
- 
-    I2C_EnterRxMode(x);
-    I2C_DisableAck(x);
- 
-    I2C_ReadByte(x);     // to clear TCF
-    
-    I2C_Wait(x);   
-    I2C_Stop(x);
-    res = I2C_ReadByte(x);  //save the read data
-
-    I2C_WaitStop(0);
-    return res;
-}
-/****************************************************************************************
-*
-*****************************************************************************************/
-void I2C_ReadMultData(uint8_t x, uint8_t SlaveAddress, uint32_t n_data, uint8_t *res)
-{
-    uint32_t i = 0;
- 
-    I2C_Start(x);
-    I2C_WriteByte(x, ((SlaveAddress << 1) | I2C_WRITE));
-    I2C_Wait(x);
- 
-    I2C_RepeatedStart(x);
- 
-    I2C_WriteByte(x, ((SlaveAddress << 1) | I2C_READ));
-    I2C_Wait(x);
- 
-    I2C_EnterRxMode(x);
-    I2C_EnableAck(x);
- 
-    I2C_ReadByte(x);     // to clear TCF
-    I2C_Wait(x);
-    
-    for(i=0;i<(n_data-2);i++)
-    {
-        *res = I2C_ReadByte(x);
-        res++;
-        I2C_Wait(x);
+    tmp = update_cmds;
+    for (i = sizeof(update_cmds); i; i--, tmp++) {
+        v[1] = *tmp;
+        I2C_WriteMultData(0, SSD1306_I2C, 2, v);
     }
- 
-    I2C_DisableAck(x);
- 
-    *res = I2C_ReadByte(x);
-    res++;
-    I2C_Wait(x);
- 
-    I2C_Stop(x);
- 
-    *res = I2C_ReadByte(x);     
-    
-    I2C_WaitStop(0);
-    return;
+
+    I2C_WriteMultData(0, SSD1306_I2C, SCRBUF_CMD_SIZE, scrbuf_cmd);
 }
 /****************************************************************************************
-*
-*****************************************************************************************/
-void I2C_WriteMultData(uint8_t x, uint8_t SlaveAddress,
-                           uint32_t n_data, uint8_t *data)
-{
-    uint32_t i = 0;
- 
-    I2C_Start(x);
-    I2C_WriteByte(x, ((SlaveAddress << 1) | I2C_WRITE));
-    I2C_Wait(x);
- 
-    for(i=0;i<n_data;i++)
-    {
-        I2C_WriteByte(x,*data);
-        I2C_Wait(x);
-        data++;
-    }
-    I2C_Stop(x);
-    
-    I2C_WaitStop(0);
-}
+ *
+ *****************************************************************************************/
+void I2C_initOLED(void) {
+    uint8_t *tmp;
+    uint8_t v[2] = {SSD1306_COMMAND_CONTINUE, 0x00};
+    uint32_t i;
 
-/****************************************************************************************
-*
-*****************************************************************************************/
-void I2C_ReadMultRegister(uint8_t x, uint8_t SlaveAddress,
-                             uint8_t RegisterAddress,uint32_t n_data, uint8_t *res)
-{
-    uint32_t i = 0;
- 
-    I2C_Start(x);
-    I2C_WriteByte(x, ((SlaveAddress << 1) | I2C_WRITE));
-    I2C_Wait(x);
- 
-    I2C_WriteByte(x, RegisterAddress);
-    I2C_Wait(x);
- 
-    I2C_RepeatedStart(x);
- 
-    I2C_WriteByte(x, ((SlaveAddress << 1) | I2C_READ));
-    I2C_Wait(x);
- 
-    I2C_EnterRxMode(x);
-    I2C_EnableAck(x);
- 
-    I2C_ReadByte(x);     // to clear TCF
-    I2C_Wait(x);
-    
-    for(i=0;i<(n_data-2);i++)
-    {
-        *res = I2C_ReadByte(x);
-        res++;
-        I2C_Wait(x);
+    // List of commands for reset: Section 8.5 in
+    // https://www.digikey.com/htmldatasheets/production/2047793/0/0/1/ssd1306.html
+
+    tmp = init_cmds;
+
+    for (i = sizeof(init_cmds); i; i--, tmp++) {
+        v[1] = *tmp;
+        I2C_WriteMultData(0, SSD1306_I2C, 2, v);
     }
- 
-    I2C_DisableAck(x);
- 
-    *res = I2C_ReadByte(x);
-    res++;
-    I2C_Wait(x);
- 
-    I2C_Stop(x);
- 
-    *res = I2C_ReadByte(x);     
-    
-    I2C_WaitStop(0);
-    return;
+
+    // Fill the screenbuffer
+    I2C_OLED_clrScrBuf();
+
+    I2C_OLED_redisplay();
 }
 /****************************************************************************************
-*
-*****************************************************************************************/
-void I2C_WriteMultRegister(uint8_t x, uint8_t SlaveAddress,
-                           uint8_t RegisterAddress, uint32_t n_data, uint8_t *data)
-{
-    uint32_t i = 0;
- 
-    I2C_Start(x);
-    I2C_WriteByte(x, ((SlaveAddress << 1) | I2C_WRITE));
-    I2C_Wait(x);
- 
-    I2C_WriteByte(x, RegisterAddress);
-    I2C_Wait(x);
- 
-    for(i=0;i<n_data;i++)
-    {
-        I2C_WriteByte(x,*data);
-        I2C_Wait(x);
-        data++;
+ *
+ *****************************************************************************************/
+uint8_t I2C_writeOLED_Byte(control_byte c, uint8_t data) {
+    if (c == SSD1306_DATA || c == SSD1306_COMMAND) {
+        I2C_WriteData(0, SSD1306_I2C, data);
+
+        return 1;
     }
-    I2C_Stop(x);
-    
-    I2C_WaitStop(0);
+    return 0;
 }
+/****************************************************************************************
+ *
+ *****************************************************************************************/
+uint8_t I2C_writeOLED(control_byte c, uint32_t n_data, uint8_t *data) {
+    if (c == SSD1306_DATA_CONTINUE || c == SSD1306_COMMAND_CONTINUE) {
+        I2C_WriteMultData(0, SSD1306_I2C, n_data, &data[0]);
 
+        return 1;
+    }
 
+    return 0;
+}
+/****************************************************************************************
+ *
+ *****************************************************************************************/
+void I2C_OLED_setPixel(uint16_t x, uint16_t y) {
+    int by, bi;
+
+    if (x < 128 && y < 64) {
+        by = ((y / 8) * 128) + x;
+        bi = y % 8;
+
+        scrbuf[by] |= (1 << bi);
+    }
+}
+/****************************************************************************************
+ *
+ *****************************************************************************************/
+void I2C_OLED_clrPixel(uint16_t x, uint16_t y) {
+    int by, bi;
+
+    if (x < 128 && y < 64) {
+        by = ((y / 8) * 128) + x;
+        bi = y % 8;
+
+        scrbuf[by] &= ~(1 << bi);
+    }
+}

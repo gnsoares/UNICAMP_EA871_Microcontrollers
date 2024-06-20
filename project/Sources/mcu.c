@@ -34,6 +34,12 @@ void config(void) {
     // Inicializa o modulo RTC com fonte LPO
     RTClpo_init();
 
+    // Set I2C connection to SSD1306
+    I2C_initConSSD1306();
+
+    // Initialize OLED (SSD1306)
+    I2C_initOLED();
+
     SIM_setaTPMSRC(0b01);  // MCGFLLCLK clock or MCGPLLCLK/2
     TPM_config_basica();
     TPM_config_especifica(1,          // TPM1
@@ -56,4 +62,5 @@ void config(void) {
 
 float get_time(void) {
     // TODO
+    return 0;
 }

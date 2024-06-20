@@ -12,6 +12,8 @@
 
 #include <stdint.h>
 
+#include "game.h"
+
 typedef enum {
     PREPARA_INICIO,
     INICIO,
@@ -35,5 +37,8 @@ void ISR_setState(state_t s);
  * @return estado atual
  */
 state_t ISR_getState(void);
+
+player_t ISR_getPlayer(void);
+void ISR_swapPlayer(void);
 
 #endif /* ISR_H_ */
