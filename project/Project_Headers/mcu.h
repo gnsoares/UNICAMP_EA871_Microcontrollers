@@ -23,6 +23,7 @@
 #define SCREEN_HEIGHT 64
 
 void config(void);
-uint8_t get_time(void);
+void reset_time(void);
+uint32_t get_time(void);
 
 #endif

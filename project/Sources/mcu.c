@@ -60,7 +60,10 @@ void config(void) {
     TPM_habilitaNVICIRQ(18, 3);  // TPM1
 }
 
-uint8_t get_time(void) {
-    // TODO
-    return 0;
+void reset_time(void) {
+    RTClpo_setTime(0);
+}
+
+uint32_t get_time(void) {
+    return ((RTC_TSR * 32768) + RTC_TPR);
 }

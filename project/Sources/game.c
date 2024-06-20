@@ -16,12 +16,15 @@
 // Macro to compute the absolute value of the difference between two values
 #define ABS_DIFF(a, b) ((a) > (b) ? ((a) - (b)) : ((b) - (a)))
 
+#define PIXELS_P_METER 4.712
+#define G 9.81 * PIXELS_P_METER / 1000 / 1000  // pixels / ms^2
+
 void game_loop(uint8_t sets_to_win) {
     player_t winner_match = PLAYER_NONE, winner_point = PLAYER_NONE;
     board_t *board = ISR_getBoard();
-    float t1, t2;
+    uint32_t t1, t2;  // ms
     ISR_setState(LAUNCH_BALL);
-    t1 = get_time();
+
     while (1) {
         switch (ISR_getState()) {
             case PREPARA_INICIO:
@@ -37,15 +40,23 @@ void game_loop(uint8_t sets_to_win) {
             case LAUNCH_BALL:
                 board_reset_ball(board);
                 ISR_setState(PLAYER_TURN);
+                reset_time();
+                t1 = get_time();
                 // TODO: enable interrupt of button of the player where the ball went towards
                 // player = player where the ball went towards;
                 break;
             case PLAYER_TURN:
                 t2 = get_time();
+                if (t1 > t2) {
+                    reset_time();
+                    t1 = get_time();
+                    break;
+                }
                 board_update(board, t2 - t1);
                 board_display(board);
                 winner_point = board_check_winner_point(board);
                 t1 = t2;
+                break;
             case LCD_UPDATE:
                 board_update_score(board, winner_point);
                 winner_match = board_check_winner_match(board, sets_to_win);
@@ -78,18 +89,20 @@ void board_reset(board_t *board) {
     board->bounces = 0;
 }
 
-void board_update(board_t *board, uint8_t dt) {
-    float v_prev;
+void board_update(board_t *board, uint32_t dt) {
+    // float v_prev;
     // x_{k} = x_{k-1} + vx * dt
     board->ball_pos.x += board->ball_vel.x * dt;
+    // S2 = S1 + V*t + a*t^2/2
+    board->ball_pos.y += board->ball_vel.y * dt + G * dt * dt / 2;
     // vy_{k} = vy_{k-1} + g * dt
-    v_prev = board->ball_vel.y;
+    // v_prev = board->ball_vel.y;
     board->ball_vel.y += G * dt;
     // dy = (vy_{k}^2 - vy_{k-1}^2) / 2g
-    board->ball_pos.y += (board->ball_vel.y * board->ball_vel.y - v_prev * v_prev) / (2 * G);
-    if (board->ball_pos.y >= SCREEN_HEIGHT - 7) {
-        board->ball_pos.x = SCREEN_HEIGHT - 7;
-        board->ball_vel.y = -board->ball_vel.y;
+    // board->ball_pos.y += (board->ball_vel.y * board->ball_vel.y - v_prev * v_prev) / (2 * G);
+    if (board->ball_pos.y >= SCREEN_HEIGHT - 7 && board->ball_vel.y > 0) {
+        board->ball_pos.y = SCREEN_HEIGHT - 7;
+        board->ball_vel.y = -.8 * board->ball_vel.y;
         board->bounces++;
     }
 }
@@ -97,8 +110,8 @@ void board_update(board_t *board, uint8_t dt) {
 player_t board_check_winner_point(board_t *board) {
     uint8_t ball_is_out = board->ball_pos.x < 0 || board->ball_pos.x >= SCREEN_WIDTH;
     if (
-        board->bounces > 1 ||                  // 2 bounces
-        (board->bounces = 1 && (ball_is_out))  // bounce and out
+        board->bounces > 1 ||                   // 2 bounces
+        (board->bounces == 1 && (ball_is_out))  // bounce and out
     ) {
         return board->ball_pos.x > SCREEN_WIDTH / 2 ? PLAYER_1 : PLAYER_2;
     }
@@ -224,6 +237,7 @@ void board_update_LCD_points(board_t *board) {
 
 void board_display(board_t *board) {
     uint8_t i, j, x, y;
+    I2C_OLED_clrScrBuf();
     // court
     for (i = 8; i < SCREEN_WIDTH - 8; i++) {
         for (j = SCREEN_HEIGHT - 6; j < SCREEN_HEIGHT - 4; j++) {
