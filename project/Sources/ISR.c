@@ -46,7 +46,7 @@ void PORTA_IRQHandler() {
             TPM_habilitaInterrupTOF(1);  // play hit sound
             GPIO_switches_IRQAn_interrupt_desativa(4);
             // TODO: check timing of press
-            // TODO: change ball vx and vy accordingly
+            board_hit_ball(&board);
             ISR_swapPlayer();
             GPIO_switches_IRQAn_interrupt_ativa(5, BTN_IRQC);
         }
@@ -56,7 +56,7 @@ void PORTA_IRQHandler() {
             TPM_habilitaInterrupTOF(1);  // play hit sound
             GPIO_switches_IRQAn_interrupt_desativa(5);
             // TODO: check timing of press
-            // TODO: change ball vx and vy accordingly
+            board_hit_ball(&board);
             ISR_swapPlayer();
             GPIO_switches_IRQAn_interrupt_ativa(4, BTN_IRQC);
         }

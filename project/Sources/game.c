@@ -20,6 +20,12 @@
 #define G 9.81 * PIXELS_P_METER / 1000 / 1000  // pixels / ms^2
 #define V0 5 * PIXELS_P_METER / 1000           // pixels / ms
 
+#define NET_TOP SCREEN_HEIGHT - 24
+#define NET_LEFT SCREEN_WIDTH / 2 - 1
+#define NET_RIGHT SCREEN_WIDTH / 2 + 1
+#define FLOOR_LEVEL SCREEN_HEIGHT - 6
+#define FLOOR_HEIGHT 2
+
 void game_loop(uint8_t sets_to_win) {
     player_t winner_match = PLAYER_NONE, winner_point = PLAYER_NONE;
     board_t *board = ISR_getBoard();
@@ -33,6 +39,7 @@ void game_loop(uint8_t sets_to_win) {
                 // TODO: seta tela de inicio OLED
                 GPIO_switches_IRQAn_interrupt_ativa(12, BTN_IRQC);
                 ISR_setState(INICIO);
+                // TODO: make this keep the last score
                 board_init_LCD(board);
                 break;
             case INICIO:
@@ -69,6 +76,10 @@ void game_loop(uint8_t sets_to_win) {
                     ISR_setState(PLAYER_TURN);
                     break;
                 }
+                // jogador venceu ponto: desabilitar botoes
+                GPIO_switches_IRQAn_interrupt_desativa(4);
+                GPIO_switches_IRQAn_interrupt_desativa(5);
+
                 board_update_score(board, winner_point);
                 winner_match = board_check_winner_match(board, sets_to_win);
                 ISR_setState(winner_match != PLAYER_NONE ? WIN_SCREEN : LAUNCH_BALL);
@@ -97,35 +108,63 @@ void board_reset(board_t *board) {
     board->score[1].games = 0;
     board->score[0].points = 0;
     board->score[1].points = 0;
-    board->bounces = 0;
+    board->bounces_left = 0;
+    board->bounces_right = 0;
 }
 
 void board_update(board_t *board, uint32_t dt) {
-    // float v_prev;
+    float x_prev = board->ball_pos.x, y_prev = board->ball_pos.y;
+
     // x_{k} = x_{k-1} + vx * dt
     board->ball_pos.x += board->ball_vel.x * dt;
     // S2 = S1 + V*t + a*t^2/2
     board->ball_pos.y += board->ball_vel.y * dt + G * dt * dt / 2;
     // vy_{k} = vy_{k-1} + g * dt
-    // v_prev = board->ball_vel.y;
     board->ball_vel.y += G * dt;
-    // dy = (vy_{k}^2 - vy_{k-1}^2) / 2g
-    // board->ball_pos.y += (board->ball_vel.y * board->ball_vel.y - v_prev * v_prev) / (2 * G);
-    if (board->ball_pos.y >= SCREEN_HEIGHT - 7 && board->ball_vel.y > 0) {
-        board->ball_pos.y = SCREEN_HEIGHT - 7;
-        board->ball_vel.y = -.8 * board->ball_vel.y;
-        board->bounces++;
+
+    // acertou o chao: quica
+    if (board->ball_pos.y >= FLOOR_LEVEL - 1 && board->ball_vel.y > 0) {
+        board->ball_pos.y = FLOOR_LEVEL - 1;
+        board->ball_vel.y *= -.8;
+        if (board->ball_pos.x < SCREEN_WIDTH / 2) {
+            board->bounces_left++;
+        } else {
+            board->bounces_right++;
+        }
+    }
+    if (y_prev >= NET_TOP || board->ball_pos.y >= NET_TOP) {
+        // acertou a rede: reflete
+        if (board->ball_pos.x >= NET_LEFT && board->ball_pos.x <= NET_RIGHT) {
+            board->ball_vel.x *= -.8;
+        } else if (x_prev < SCREEN_WIDTH / 2 && board->ball_pos.x > SCREEN_WIDTH / 2) {
+            // acertou da esquerda
+            board->ball_vel.x *= -.8;
+            board->ball_pos.x = NET_LEFT;
+        } else if (x_prev > SCREEN_WIDTH / 2 && board->ball_pos.x < SCREEN_WIDTH / 2) {
+            // acertou da direita
+            board->ball_vel.x *= -.8;
+            board->ball_pos.x = NET_RIGHT;
+        }
+    } else {
+        // passou por cima da rede: reseta bounces
+        if (x_prev < SCREEN_WIDTH / 2 && board->ball_pos.x > SCREEN_WIDTH / 2) {
+            board->bounces_left = 0;
+        } else if (x_prev > SCREEN_WIDTH / 2 && board->ball_pos.x < SCREEN_WIDTH / 2) {
+            board->bounces_right = 0;
+        }
     }
 }
 
 player_t board_check_winner_point(board_t *board) {
+    // TODO: take into consideration court dimensions
     uint8_t ball_is_out = board->ball_pos.x < 0 || board->ball_pos.x >= SCREEN_WIDTH;
-    if (
-        board->bounces > 1 ||                   // 2 bounces
-        (board->bounces == 1 && (ball_is_out))  // bounce and out
-    ) {
-        return board->ball_pos.x > SCREEN_WIDTH / 2 ? PLAYER_1 : PLAYER_2;
+    if (board->bounces_left > 1 || (board->bounces_left == 1 && (ball_is_out))) {
+        return PLAYER_2;
     }
+    if (board->bounces_right > 1 || (board->bounces_right == 1 && (ball_is_out))) {
+        return PLAYER_1;
+    }
+    // aqui bounces == 0 para os dois
     if (board->ball_pos.x < 0) {  // out from player 2
         return PLAYER_1;
     }
@@ -150,7 +189,17 @@ void board_reset_ball(board_t *board) {
     board->ball_pos.y = 8;
     board->ball_vel.x = get_time() & 0x1 ? V0 : -V0;
     board->ball_vel.y = 0;
-    board->bounces = 0;
+    board->bounces_left = 0;
+    board->bounces_right = 0;
+}
+
+void board_hit_ball(board_t *board) {
+    board->ball_vel.x *= -1.1;
+    if (board->ball_vel.y > 0) {
+        board->ball_vel.y *= -1;
+    } else {
+        board->ball_vel.y *= 1.1;
+    }
 }
 
 void board_update_score(board_t *board, player_t winner) {
@@ -253,14 +302,15 @@ void board_update_LCD_points(board_t *board) {
 void board_display(board_t *board) {
     uint8_t i, j, x, y;
     I2C_OLED_clrScrBuf();
-    // court
+    // floor
     for (i = 8; i < SCREEN_WIDTH - 8; i++) {
-        for (j = SCREEN_HEIGHT - 6; j < SCREEN_HEIGHT - 4; j++) {
+        for (j = FLOOR_LEVEL; j < FLOOR_LEVEL + FLOOR_HEIGHT; j++) {
             I2C_OLED_setPixel(i, j);
         }
     }
-    for (i = SCREEN_WIDTH / 2 - 1; i < SCREEN_WIDTH / 2 + 1; i++) {
-        for (j = SCREEN_HEIGHT - 24; j < SCREEN_HEIGHT - 6; j++) {
+    // net
+    for (i = NET_LEFT; i < NET_RIGHT; i++) {
+        for (j = NET_TOP; j < FLOOR_LEVEL; j++) {
             I2C_OLED_setPixel(i, j);
         }
     }
