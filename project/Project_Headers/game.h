@@ -34,6 +34,7 @@ typedef struct {
     vector_2d_t ball_pos;
     vector_2d_t ball_vel;
     score_t score[2];
+    uint8_t bounces;
 } board_t;
 
 void game_loop(uint8_t sets_to_win);

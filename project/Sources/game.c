@@ -75,6 +75,7 @@ void board_reset(board_t *board) {
     board->score[1].games = 0;
     board->score[0].points = 0;
     board->score[1].points = 0;
+    board->bounces = 0;
 }
 
 void board_update(board_t *board, uint8_t dt) {
@@ -86,6 +87,11 @@ void board_update(board_t *board, uint8_t dt) {
     board->ball_vel.y += G * dt;
     // dy = (vy_{k}^2 - vy_{k-1}^2) / 2g
     board->ball_pos.y += (board->ball_vel.y * board->ball_vel.y - v_prev * v_prev) / (2 * G);
+    if  (board->ball_pos.y > SCREEN_HEIGHT - 6){
+        board->ball_pos.x = 0;
+        board->ball_vel.y = 0;
+        board->bounces++;
+    }
 }
 
 player_t board_check_winner_match(board_t *board, uint8_t sets_to_win) {
