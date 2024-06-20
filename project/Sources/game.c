@@ -44,7 +44,7 @@ void game_loop(uint8_t sets_to_win) {
                 t2 = get_time();
                 board_update(board, t2 - t1);
                 board_display(board);
-                // TODO: check for point winner
+                winner_point = board_check_winner_point(board);
                 t1 = t2;
             case LCD_UPDATE:
                 board_update_score(board, winner_point);
@@ -92,6 +92,23 @@ void board_update(board_t *board, uint8_t dt) {
         board->ball_vel.y = -board->ball_vel.y;
         board->bounces++;
     }
+}
+
+player_t board_check_winner_point(board_t *board) {
+    uint8_t ball_is_out = board->ball_pos.x < 0 || board->ball_pos.x >= SCREEN_WIDTH;
+    if (
+        board->bounces > 1 ||                  // 2 bounces
+        (board->bounces = 1 && (ball_is_out))  // bounce and out
+    ) {
+        return board->ball_pos.x > SCREEN_WIDTH / 2 ? PLAYER_1 : PLAYER_2;
+    }
+    if (board->ball_pos.x < 0) {  // out from player 2
+        return PLAYER_1;
+    }
+    if (board->ball_pos.x >= SCREEN_WIDTH) {  // out from player 1
+        return PLAYER_2;
+    }
+    return PLAYER_NONE;
 }
 
 player_t board_check_winner_match(board_t *board, uint8_t sets_to_win) {

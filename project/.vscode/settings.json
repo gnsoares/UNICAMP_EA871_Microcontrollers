@@ -1,6 +1,8 @@
 {
   "files.associations": {
-    "*.h": "c"
+    "*.h": "c",
+    "__locale": "c",
+    "ios": "c"
   },
   "C_Cpp.default.includePath": ["**/Project_Headers"]
 }
