@@ -44,29 +44,29 @@ void PORTA_IRQHandler() {
     if (PORTA_PCR4 & PORT_PCR_ISF_MASK) {
         if (state == PLAYER_TURN && player == PLAYER_1) {
             TPM_habilitaInterrupTOF(1);  // play hit sound
-            // TODO: disable interrupt of button
+            GPIO_switches_IRQAn_interrupt_desativa(4);
             // TODO: check timing of press
             // TODO: change ball vx and vy accordingly
             ISR_swapPlayer();
-            // TODO: enable interrupt of other player's button
+            GPIO_switches_IRQAn_interrupt_ativa(5, BTN_IRQC);
         }
         PORTA_PCR4 |= PORT_PCR_ISF_MASK;  // w1c: limpa flag de interrupcao
     } else if (PORTA_PCR5 & PORT_PCR_ISF_MASK) {
         if (state == PLAYER_TURN && player == PLAYER_2) {
             TPM_habilitaInterrupTOF(1);  // play hit sound
-            // TODO: disable interrupt of button
+            GPIO_switches_IRQAn_interrupt_desativa(5);
             // TODO: check timing of press
             // TODO: change ball vx and vy accordingly
             ISR_swapPlayer();
-            // TODO: enable interrupt of other player's button
+            GPIO_switches_IRQAn_interrupt_ativa(4, BTN_IRQC);
         }
         PORTA_PCR5 |= PORT_PCR_ISF_MASK;  // w1c: limpa flag de interrupcao
     } else if (PORTA_PCR12 & PORT_PCR_ISF_MASK) {
         if (state == INICIO) {
-            // TODO: disable interrupt of button
+            GPIO_switches_IRQAn_interrupt_desativa(12);
             state = LAUNCH_BALL;
         }
-        PORTA_PCR5 |= PORT_PCR_ISF_MASK;  // w1c: limpa flag de interrupcao
+        PORTA_PCR12 |= PORT_PCR_ISF_MASK;  // w1c: limpa flag de interrupcao
     }
 }
 
@@ -76,6 +76,10 @@ void ISR_setState(state_t s) {
 
 state_t ISR_getState(void) {
     return state;
+}
+
+void ISR_setPlayer(player_t p) {
+    player = p;
 }
 
 player_t ISR_getPlayer(void) {

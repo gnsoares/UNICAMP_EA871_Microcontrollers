@@ -25,10 +25,7 @@ void config(void) {
 
     // Inicializa botoes
     GPIO_switches_init(
-        0b1010,  // NMI: falling edge
-        0b1010,  // IRQA5: falling edge
-        0b1010,  // IRQA12: falling edge
-        2        // prioridade = 3 (mais baixa)
+        2  // prioridade = 3 (mais baixa)
     );
 
     // Inicializa o modulo RTC com fonte LPO

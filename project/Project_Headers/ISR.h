@@ -38,6 +38,7 @@ void ISR_setState(state_t s);
  */
 state_t ISR_getState(void);
 
+void ISR_setPlayer(player_t p);
 player_t ISR_getPlayer(void);
 void ISR_swapPlayer(void);
 board_t* ISR_getBoard(void);

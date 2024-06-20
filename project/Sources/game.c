@@ -18,19 +18,20 @@
 
 #define PIXELS_P_METER 4.712
 #define G 9.81 * PIXELS_P_METER / 1000 / 1000  // pixels / ms^2
+#define V0 5 * PIXELS_P_METER / 1000           // pixels / ms
 
 void game_loop(uint8_t sets_to_win) {
     player_t winner_match = PLAYER_NONE, winner_point = PLAYER_NONE;
     board_t *board = ISR_getBoard();
     uint32_t t1, t2;  // ms
-    ISR_setState(LAUNCH_BALL);
+    ISR_setState(PREPARA_INICIO);
 
     while (1) {
         switch (ISR_getState()) {
             case PREPARA_INICIO:
                 board_reset(board);
                 // TODO: seta tela de inicio OLED
-                // TODO: habilita interrupt IRQA12
+                GPIO_switches_IRQAn_interrupt_ativa(12, BTN_IRQC);
                 ISR_setState(INICIO);
                 board_init_LCD(board);
                 break;
@@ -42,8 +43,13 @@ void game_loop(uint8_t sets_to_win) {
                 ISR_setState(PLAYER_TURN);
                 reset_time();
                 t1 = get_time();
-                // TODO: enable interrupt of button of the player where the ball went towards
-                // player = player where the ball went towards;
+                if (board->ball_vel.x < 0) {
+                    GPIO_switches_IRQAn_interrupt_ativa(4, BTN_IRQC);
+                    ISR_setPlayer(PLAYER_1);
+                } else {
+                    GPIO_switches_IRQAn_interrupt_ativa(5, BTN_IRQC);
+                    ISR_setPlayer(PLAYER_2);
+                }
                 break;
             case PLAYER_TURN:
                 t2 = get_time();
@@ -55,9 +61,14 @@ void game_loop(uint8_t sets_to_win) {
                 board_update(board, t2 - t1);
                 board_display(board);
                 winner_point = board_check_winner_point(board);
+                ISR_setState(LCD_UPDATE);
                 t1 = t2;
                 break;
             case LCD_UPDATE:
+                if (winner_point == PLAYER_NONE) {
+                    ISR_setState(PLAYER_TURN);
+                    break;
+                }
                 board_update_score(board, winner_point);
                 winner_match = board_check_winner_match(board, sets_to_win);
                 ISR_setState(winner_match != PLAYER_NONE ? WIN_SCREEN : LAUNCH_BALL);
@@ -135,9 +146,11 @@ player_t board_check_winner_match(board_t *board, uint8_t sets_to_win) {
 }
 
 void board_reset_ball(board_t *board) {
-    // TODO
-    board->ball_pos.x = 20.6;
-    board->ball_pos.y = 20.6;
+    board->ball_pos.x = SCREEN_WIDTH / 2;
+    board->ball_pos.y = 8;
+    board->ball_vel.x = get_time() & 0x1 ? V0 : -V0;
+    board->ball_vel.y = 0;
+    board->bounces = 0;
 }
 
 void board_update_score(board_t *board, player_t player) {
@@ -184,11 +197,11 @@ void board_update_score(board_t *board, player_t player) {
     board_update_LCD_points(board);
 }
 
-void board_init_LCD(board_t *board) {
+void board_init_LCD() {
     player_t player = PLAYER_1;
     uint8_t line_offset;
     char string[5];
-    uint8_t empty_LCD[] = {32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32};
+    uint8_t empty_LCD[] = {32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 0};
     GPIO_LCD_escreve_string(0x00, empty_LCD);
     GPIO_LCD_escreve_string(0x40, empty_LCD);
     while (player != PLAYER_NONE) {
@@ -250,11 +263,16 @@ void board_display(board_t *board) {
         }
     }
     // ball
-    x = (uint8_t)roundf(board->ball_pos.x);
-    y = (uint8_t)roundf(board->ball_pos.y);
-    for (i = x - 2; i < x + 3; i++) {
-        for (j = y - 2 + ABS_DIFF(i, x); j < y + 3 - ABS_DIFF(i, x); j++) {
-            I2C_OLED_setPixel(i, j);
+    if (board->ball_pos.x > 0 &&
+        board->ball_pos.x <= SCREEN_WIDTH &&
+        board->ball_pos.y > 0 &&
+        board->ball_pos.y <= SCREEN_HEIGHT) {
+        x = (uint8_t)roundf(board->ball_pos.x);
+        y = (uint8_t)roundf(board->ball_pos.y);
+        for (i = x - 2; i < x + 3; i++) {
+            for (j = y - 2 + ABS_DIFF(i, x); j < y + 3 - ABS_DIFF(i, x); j++) {
+                I2C_OLED_setPixel(i, j);
+            }
         }
     }
     I2C_OLED_redisplay();

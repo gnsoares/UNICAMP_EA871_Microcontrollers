@@ -21,6 +21,7 @@
 
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
+#define BTN_IRQC 0b1010  // falling edge
 
 void config(void);
 void reset_time(void);

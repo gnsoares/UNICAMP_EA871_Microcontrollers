@@ -9,10 +9,7 @@
 #include "mcu.h"
 #include "util.h"
 
-void GPIO_switches_init(uint8_t NMI_IRQC,
-                        uint8_t IRQA5_IRQC,
-                        uint8_t IRQA12_IRQC,
-                        uint8_t prioridade) {
+void GPIO_switches_init(uint8_t prioridade) {
     // Habilita o clock do modulo PORTA para botoeiras
     SIM_SCGC5 |= SIM_SCGC5_PORTA_MASK;
 
@@ -36,9 +33,9 @@ void GPIO_switches_init(uint8_t NMI_IRQC,
     PORTA_PCR5 &= ~PORT_PCR_IRQC(0xF);
     PORTA_PCR12 &= ~PORT_PCR_IRQC(0xF);
     // limpa flag de interrupcao + configura evento de interrupcao
-    PORTA_PCR4 |= PORT_PCR_ISF_MASK | PORT_PCR_IRQC(NMI_IRQC);      // modo de interrupcao
-    PORTA_PCR5 |= PORT_PCR_ISF_MASK | PORT_PCR_IRQC(IRQA5_IRQC);    // modo de interrupcao
-    PORTA_PCR12 |= PORT_PCR_ISF_MASK | PORT_PCR_IRQC(IRQA12_IRQC);  // modo de interrupcao
+    // PORTA_PCR4 |= PORT_PCR_ISF_MASK | PORT_PCR_IRQC(NMI_IRQC);      // modo de interrupcao
+    // PORTA_PCR5 |= PORT_PCR_ISF_MASK | PORT_PCR_IRQC(IRQA5_IRQC);    // modo de interrupcao
+    // PORTA_PCR12 |= PORT_PCR_ISF_MASK | PORT_PCR_IRQC(IRQA12_IRQC);  // modo de interrupcao
 
     /**
      * Configura o modulo NVIC: habilita IRQ 30 e limpa pendencias IRQ 30

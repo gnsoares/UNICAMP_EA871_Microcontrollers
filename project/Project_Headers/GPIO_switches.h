@@ -13,15 +13,12 @@
 
 /**
  * @brief Inicializa botoeiras
- * @param[in] NMI_IRQC modo de interrupcao para NMI
- * @param[in] IRQA5_IRQC modo de interrupcao para IRQA5
- * @param[in] IRQA12_IRQC modo de interrupcao para IRQA12
- * @param[in] prioridade de atendimento
+ *
+ * NAO habilita interrupcoes
+ *
+ * @param[in] prioridade prioridade de atendimento
  */
-void GPIO_switches_init(uint8_t NMI_IRQC,
-                        uint8_t IRQA5_IRQC,
-                        uint8_t IRQA12_IRQC,
-                        uint8_t prioridade);
+void GPIO_switches_init(uint8_t prioridade);
 
 /**
  * @brief Desativa IRQ30, sem limpar as pendencias
