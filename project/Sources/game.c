@@ -153,12 +153,12 @@ void board_reset_ball(board_t *board) {
     board->bounces = 0;
 }
 
-void board_update_score(board_t *board, player_t player) {
-    if (player != PLAYER_1 && player != PLAYER_2) {
+void board_update_score(board_t *board, player_t winner) {
+    if (winner != PLAYER_1 && winner != PLAYER_2) {
         // ERROR
         return;
     }
-    uint8_t p_idx = ((uint8_t)player) - 1;
+    uint8_t p_idx = ((uint8_t)winner) - 1;
     switch (board->score[p_idx].points) {
         case 0:
             board->score[p_idx].points = 15;
@@ -172,6 +172,7 @@ void board_update_score(board_t *board, player_t player) {
         case 40:
             // IMPROV: deuce
             board->score[p_idx].points = 0;
+            board->score[(p_idx + 1) % 2].points = 0;
             switch (board->score[p_idx].games) {
                 case 0:
                 case 1:
@@ -186,6 +187,7 @@ void board_update_score(board_t *board, player_t player) {
                     board->score[p_idx].games += 1;
                     board_update_LCD_games(board);
                     board->score[p_idx].games = 0;
+                    board->score[(p_idx + 1) % 2].games = 0;
                     board->score[p_idx].sets += 1;
                 default:
                     break;
@@ -222,7 +224,7 @@ void board_update_LCD_games(board_t *board) {
     char string[3];
     int p_idx;
     while (player != PLAYER_NONE) {
-        p_idx = PLAYER_1 - 1;
+        p_idx = player - 1;
         line_offset = (player == PLAYER_1 ? 0x00 : 0x40);
         string[0] = '0' + board->score[p_idx].games;
         string[1] = ' ';
@@ -238,7 +240,7 @@ void board_update_LCD_points(board_t *board) {
     char string[3];
     int p_idx;
     while (player != PLAYER_NONE) {
-        p_idx = PLAYER_1 - 1;
+        p_idx = player - 1;
         line_offset = (player == PLAYER_1 ? 0x00 : 0x40);
         string[0] = '0' + board->score[p_idx].points / 10;
         string[1] = '0' + board->score[p_idx].points % 10;
