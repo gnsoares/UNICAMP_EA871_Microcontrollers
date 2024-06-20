@@ -8,14 +8,19 @@
 
 #include "game.h"
 
+#include <math.h>
+
 #include "ISR.h"
 #include "mcu.h"
+
+// Macro to compute the absolute value of the difference between two values
+#define ABS_DIFF(a, b) ((a) > (b) ? ((a) - (b)) : ((b) - (a)))
 
 void game_loop(uint8_t sets_to_win) {
     player_t winner_match = PLAYER_NONE, winner_point = PLAYER_NONE;
     board_t *board = ISR_getBoard();
     float t1, t2;
-    ISR_setState(PLAYER_TURN);
+    ISR_setState(LAUNCH_BALL);
     t1 = get_time();
     while (1) {
         switch (ISR_getState()) {
@@ -95,6 +100,8 @@ player_t board_check_winner_match(board_t *board, uint8_t sets_to_win) {
 
 void board_reset_ball(board_t *board) {
     // TODO
+    board->ball_pos.x = 20.6;
+    board->ball_pos.y = 20.6;
 }
 
 void board_update_score(board_t *board, player_t player) {
@@ -193,16 +200,24 @@ void board_update_LCD_points(board_t *board) {
 }
 
 void board_display(board_t *board) {
-    int i, j;
+    uint8_t i, j, x, y;
     // court
-    for (i = SCREEN_HEIGHT - 6; i < SCREEN_HEIGHT - 4; i++) {
-        for (j = 8; j < SCREEN_WIDTH - 8; j++) {
-            I2C_OLED_setPixel(j, i);
+    for (i = 8; i < SCREEN_WIDTH - 8; i++) {
+        for (j = SCREEN_HEIGHT - 6; j < SCREEN_HEIGHT - 4; j++) {
+            I2C_OLED_setPixel(i, j);
         }
     }
-    for (i = SCREEN_HEIGHT - 24; i < SCREEN_HEIGHT - 6; i++) {
-        for (j = SCREEN_WIDTH / 2 - 1; j < SCREEN_WIDTH / 2 + 1; j++) {
-            I2C_OLED_setPixel(j, i);
+    for (i = SCREEN_WIDTH / 2 - 1; i < SCREEN_WIDTH / 2 + 1; i++) {
+        for (j = SCREEN_HEIGHT - 24; j < SCREEN_HEIGHT - 6; j++) {
+            I2C_OLED_setPixel(i, j);
+        }
+    }
+    // ball
+    x = (uint8_t)roundf(board->ball_pos.x);
+    y = (uint8_t)roundf(board->ball_pos.y);
+    for (i = x - 2; i < x + 3; i++) {
+        for (j = y - 2 + ABS_DIFF(i, x); j < y + 3 - ABS_DIFF(i, x); j++) {
+            I2C_OLED_setPixel(i, j);
         }
     }
     I2C_OLED_redisplay();

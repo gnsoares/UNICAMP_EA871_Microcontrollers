@@ -9,6 +9,9 @@
 
 #include "ISR.h"
 
+#include "mcu.h"
+#include "util.h"
+
 static state_t state;
 static player_t player = PLAYER_1;
 static board_t board;

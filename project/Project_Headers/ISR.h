@@ -13,8 +13,6 @@
 #include <stdint.h>
 
 #include "game.h"
-#include "mcu.h"
-#include "util.h"
 
 typedef enum {
     PREPARA_INICIO,
