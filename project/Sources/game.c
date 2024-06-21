@@ -26,6 +26,11 @@
 #define FLOOR_LEVEL SCREEN_HEIGHT - 6
 #define FLOOR_HEIGHT 2
 
+#define WAIT_SCREEN_INNER_SQ_XMIN 24
+#define WAIT_SCREEN_INNER_SQ_XMAX 104
+#define WAIT_SCREEN_INNER_SQ_YMIN 16
+#define WAIT_SCREEN_INNER_SQ_YMAX 48
+
 void game_loop(uint8_t sets_to_win) {
     player_t winner_match = PLAYER_NONE, winner_point = PLAYER_NONE;
     board_t *board = ISR_getBoard();
@@ -41,9 +46,11 @@ void game_loop(uint8_t sets_to_win) {
                 ISR_setState(INICIO);
                 // TODO: make this keep the last score
                 board_init_LCD(board);
+                board_startscreen_display();
                 break;
             case INICIO:
-                board_startscreen_display()
+                game_display_checkerboard();
+                // do nothing
                 break;
             case LAUNCH_BALL:
                 board_reset_ball(board);
@@ -95,6 +102,26 @@ void game_loop(uint8_t sets_to_win) {
                 break;
         }
     }
+}
+
+void game_display_checkerboard(void) {
+    static uint8_t toggle = 0;
+    uint8_t i, j;
+    for (i = 0; i < SCREEN_WIDTH; i++) {
+        for (j = 0; j < SCREEN_HEIGHT; j++) {
+            if (i >= WAIT_SCREEN_INNER_SQ_XMIN && i < WAIT_SCREEN_INNER_SQ_XMAX && j >= WAIT_SCREEN_INNER_SQ_YMIN && j < WAIT_SCREEN_INNER_SQ_YMAX) {
+                continue;
+            }
+            if ((i / 8 + j / 8) % 2 == toggle) {
+                I2C_OLED_setPixel(i, j);
+            } else {
+                I2C_OLED_clrPixel(i, j);
+            }
+        }
+    }
+    toggle = (toggle + 1) % 2;
+    I2C_OLED_redisplay();
+    espera_2us(250000);
 }
 
 void board_reset(board_t *board) {
@@ -348,126 +375,125 @@ void board_display(board_t *board) {
     I2C_OLED_redisplay();
 }
 
-void board_startscreen_display(){
+void board_startscreen_display() {
+    // 'P' character starting at x = 0
+    for (int i = 0; i < 8; i++) {
+        for (int j = FLOOR_LEVEL; j < FLOOR_LEVEL + 8; j++) {
+            if (i == 0 || i == 1 ||
+                (i > 0 && i < 4 && j == FLOOR_LEVEL) ||
+                (i == 3 && j < FLOOR_LEVEL + 4) ||
+                (j == FLOOR_LEVEL + 4 && i < 4)) {
+                I2C_OLED_setPixel(i, j);
+            }
+        }
+    }
+    // 'R' character starting at x = 8
+    for (int i = 8; i < 16; i++) {
+        for (int j = FLOOR_LEVEL; j < FLOOR_LEVEL + 8; j++) {
+            if (i == 8 || i == 9 ||
+                (i > 8 && i < 12 && j == FLOOR_LEVEL) ||
+                (i == 11 && j < FLOOR_LEVEL + 4) ||
+                (j == FLOOR_LEVEL + 4 && i < 12) ||
+                (i > 9 && i == j - FLOOR_LEVEL + 8)) {
+                I2C_OLED_setPixel(i, j);
+            }
+        }
+    }
+    // 'E' character starting at x = 16
+    for (int i = 16; i < 24; i++) {
+        for (int j = FLOOR_LEVEL; j < FLOOR_LEVEL + 8; j++) {
+            if (i == 16 || i == 17 ||
+                (i > 16 && i < 20 && j == FLOOR_LEVEL) ||
+                (j == FLOOR_LEVEL + 4 && i < 20) ||
+                (i > 16 && i < 20 && j == FLOOR_LEVEL + 7)) {
+                I2C_OLED_setPixel(i, j);
+            }
+        }
+    }
+    // 'S' character starting at x = 24
+    for (int i = 24; i < 32; i++) {
+        for (int j = FLOOR_LEVEL; j < FLOOR_LEVEL + 8; j++) {
+            if ((i > 24 && i < 28 && (j == FLOOR_LEVEL || j == FLOOR_LEVEL + 7)) ||
+                (j == FLOOR_LEVEL + 3 && i > 24 && i < 28) ||
+                (i == 24 || i == 25) && (j < FLOOR_LEVEL + 4) ||
+                (i == 27 || i == 26) && (j >= FLOOR_LEVEL + 4)) {
+                I2C_OLED_setPixel(i, j);
+            }
+        }
+    }
+    // 'S' character starting at x = 32
+    for (int i = 32; i < 40; i++) {
+        for (int j = FLOOR_LEVEL; j < FLOOR_LEVEL + 8; j++) {
+            if ((i > 24 && i < 28 && (j == FLOOR_LEVEL || j == FLOOR_LEVEL + 7)) ||
+                (j == FLOOR_LEVEL + 3 && i > 24 && i < 28) ||
+                (i == 24 || i == 25) && (j < FLOOR_LEVEL + 4) ||
+                (i == 27 || i == 26) && (j >= FLOOR_LEVEL + 4)) {
+                I2C_OLED_setPixel(i, j);
+            }
+        }
+    }
+    // ' ' space character starting at x = 40
+    // Space is usually a blank space so no pixels need to be set
 
-	// 'P' character starting at x = 0
-	for (int i = 0; i < 8; i++) {
-	    for (int j = FLOOR_LEVEL; j < FLOOR_LEVEL + 8; j++) {
-	        if (i == 0 || i == 1 || 
-	            (i > 0 && i < 4 && j == FLOOR_LEVEL) || 
-	            (i == 3 && j < FLOOR_LEVEL + 4) || 
-	            (j == FLOOR_LEVEL + 4 && i < 4)) {
-	            I2C_OLED_setPixel(i, j);
-	        }
-	    }
-	}
-	// 'R' character starting at x = 8
-	for (int i = 8; i < 16; i++) {
-	    for (int j = FLOOR_LEVEL; j < FLOOR_LEVEL + 8; j++) {
-	        if (i == 8 || i == 9 || 
-	            (i > 8 && i < 12 && j == FLOOR_LEVEL) || 
-	            (i == 11 && j < FLOOR_LEVEL + 4) || 
-	            (j == FLOOR_LEVEL + 4 && i < 12) || 
-	            (i > 9 && i == j - FLOOR_LEVEL + 8)) {
-	            I2C_OLED_setPixel(i, j);
-	        }
-	    }
-	}
-	// 'E' character starting at x = 16
-	for (int i = 16; i < 24; i++) {
-	    for (int j = FLOOR_LEVEL; j < FLOOR_LEVEL + 8; j++) {
-	        if (i == 16 || i == 17 || 
-	            (i > 16 && i < 20 && j == FLOOR_LEVEL) || 
-	            (j == FLOOR_LEVEL + 4 && i < 20) || 
-	            (i > 16 && i < 20 && j == FLOOR_LEVEL + 7)) {
-	            I2C_OLED_setPixel(i, j);
-	        }
-	    }
-	}
-	// 'S' character starting at x = 24
-	for (int i = 24; i < 32; i++) {
-	    for (int j = FLOOR_LEVEL; j < FLOOR_LEVEL + 8; j++) {
-	        if ((i > 24 && i < 28 && (j == FLOOR_LEVEL || j == FLOOR_LEVEL + 7)) || 
-	            (j == FLOOR_LEVEL + 3 && i > 24 && i < 28) || 
-	            (i == 24 || i == 25) && (j < FLOOR_LEVEL + 4) || 
-	            (i == 27 || i == 26) && (j >= FLOOR_LEVEL + 4)) {
-	            I2C_OLED_setPixel(i, j);
-	        }
-	    }
-	}
-	// 'S' character starting at x = 32
-	for (int i = 32; i < 40; i++) {
-	    for (int j = FLOOR_LEVEL; j < FLOOR_LEVEL + 8; j++) {
-	        if ((i > 24 && i < 28 && (j == FLOOR_LEVEL || j == FLOOR_LEVEL + 7)) || 
-	            (j == FLOOR_LEVEL + 3 && i > 24 && i < 28) || 
-	            (i == 24 || i == 25) && (j < FLOOR_LEVEL + 4) || 
-	            (i == 27 || i == 26) && (j >= FLOOR_LEVEL + 4)) {
-	            I2C_OLED_setPixel(i, j);
-	        }
-	    }
-	}
-	// ' ' space character starting at x = 40
-	// Space is usually a blank space so no pixels need to be set
-	
-	// 'I' character starting at x = 48
-	for (int i = 56; i < 64; i++) {
-	    for (int j = FLOOR_LEVEL; j < FLOOR_LEVEL + 8; j++) {
-	        if (i == 51 || i == 50) {
-	            I2C_OLED_setPixel(i, j);
-	        }
-	    }
-	}
-	
-	// 'R' character starting at x = 56
-	for (int i = 64; i < 72; i++) {
-	    for (int j = FLOOR_LEVEL; j < FLOOR_LEVEL + 8; j++) {
-	        if (i == 56 || i == 57 || 
-	            (i > 56 && i < 60 && j == FLOOR_LEVEL) || 
-	            (i == 59 && j < FLOOR_LEVEL + 4) || 
-	            (j == FLOOR_LEVEL + 4 && i < 60) || 
-	            (i > 57 && i == j - FLOOR_LEVEL + 56)) {
-	            I2C_OLED_setPixel(i, j);
-	        }
-	    }
-	}
-	// 'Q' character starting at x = 64
-	for (int i = 72; i < 80; i++) {
-	    for (int j = FLOOR_LEVEL; j < FLOOR_LEVEL + 8; j++) {
-	        if ((i > 64 && i < 70 && (j == FLOOR_LEVEL || j == FLOOR_LEVEL + 7)) || 
-	            (i == 64 || i == 65) && (j > FLOOR_LEVEL && j < FLOOR_LEVEL + 7) || 
-	            (i == 69 || i == 68) && (j > FLOOR_LEVEL && j < FLOOR_LEVEL + 7) || 
-	            (i == j - FLOOR_LEVEL + 64)) {
-	            I2C_OLED_setPixel(i, j);
-	        }
-	    }
-	}
-	// 'A' character starting at x = 72
-	for (int i = 08; i < 88; i++) {
-	    for (int j = FLOOR_LEVEL; j < FLOOR_LEVEL + 8; j++) {
-	        if (i == 72 || i == 73 || 
-	            (i > 72 && i < 76 && j == FLOOR_LEVEL + 4) || 
-	            (i == 75 || i == 74) && (j >= FLOOR_LEVEL)) {
-	            I2C_OLED_setPixel(i, j);
-	        }
-	    }
-	}
-	// '1' character starting at x = 80
-	for (int i = 88; i < 96 i++) {
-	    for (int j = FLOOR_LEVEL; j < FLOOR_LEVEL + 8; j++) {
-	        if (i == 83 || i == 82) {
-	            I2C_OLED_setPixel(i, j);
-	        }
-	    }
-	}
-	// '2' character starting at x = 88
-	for (int i = 96; i < 104; i++) {
-	    for (int j = FLOOR_LEVEL; j < FLOOR_LEVEL + 8; j++) {
-	        if ((i > 88 && i < 92 && (j == FLOOR_LEVEL || j == FLOOR_LEVEL + 7)) || 
-	            (j == FLOOR_LEVEL + 3 && i > 88 && i < 92) || 
-	            (i == 88 || i == 89) && (j < FLOOR_LEVEL + 4) || 
-	            (i == 91 || i == 90) && (j >= FLOOR_LEVEL + 4)) {
-	            I2C_OLED_setPixel(i, j);
-	        }
-	    }
-	}
+    // 'I' character starting at x = 48
+    for (int i = 56; i < 64; i++) {
+        for (int j = FLOOR_LEVEL; j < FLOOR_LEVEL + 8; j++) {
+            if (i == 51 || i == 50) {
+                I2C_OLED_setPixel(i, j);
+            }
+        }
+    }
+
+    // 'R' character starting at x = 56
+    for (int i = 64; i < 72; i++) {
+        for (int j = FLOOR_LEVEL; j < FLOOR_LEVEL + 8; j++) {
+            if (i == 56 || i == 57 ||
+                (i > 56 && i < 60 && j == FLOOR_LEVEL) ||
+                (i == 59 && j < FLOOR_LEVEL + 4) ||
+                (j == FLOOR_LEVEL + 4 && i < 60) ||
+                (i > 57 && i == j - FLOOR_LEVEL + 56)) {
+                I2C_OLED_setPixel(i, j);
+            }
+        }
+    }
+    // 'Q' character starting at x = 64
+    for (int i = 72; i < 80; i++) {
+        for (int j = FLOOR_LEVEL; j < FLOOR_LEVEL + 8; j++) {
+            if ((i > 64 && i < 70 && (j == FLOOR_LEVEL || j == FLOOR_LEVEL + 7)) ||
+                (i == 64 || i == 65) && (j > FLOOR_LEVEL && j < FLOOR_LEVEL + 7) ||
+                (i == 69 || i == 68) && (j > FLOOR_LEVEL && j < FLOOR_LEVEL + 7) ||
+                (i == j - FLOOR_LEVEL + 64)) {
+                I2C_OLED_setPixel(i, j);
+            }
+        }
+    }
+    // 'A' character starting at x = 72
+    for (int i = 08; i < 88; i++) {
+        for (int j = FLOOR_LEVEL; j < FLOOR_LEVEL + 8; j++) {
+            if (i == 72 || i == 73 ||
+                (i > 72 && i < 76 && j == FLOOR_LEVEL + 4) ||
+                (i == 75 || i == 74) && (j >= FLOOR_LEVEL)) {
+                I2C_OLED_setPixel(i, j);
+            }
+        }
+    }
+    // '1' character starting at x = 80
+    for (int i = 88; i < 96 i++) {
+        for (int j = FLOOR_LEVEL; j < FLOOR_LEVEL + 8; j++) {
+            if (i == 83 || i == 82) {
+                I2C_OLED_setPixel(i, j);
+            }
+        }
+    }
+    // '2' character starting at x = 88
+    for (int i = 96; i < 104; i++) {
+        for (int j = FLOOR_LEVEL; j < FLOOR_LEVEL + 8; j++) {
+            if ((i > 88 && i < 92 && (j == FLOOR_LEVEL || j == FLOOR_LEVEL + 7)) ||
+                (j == FLOOR_LEVEL + 3 && i > 88 && i < 92) ||
+                (i == 88 || i == 89) && (j < FLOOR_LEVEL + 4) ||
+                (i == 91 || i == 90) && (j >= FLOOR_LEVEL + 4)) {
+                I2C_OLED_setPixel(i, j);
+            }
+        }
+    }
 }
