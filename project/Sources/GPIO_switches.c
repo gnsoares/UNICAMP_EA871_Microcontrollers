@@ -61,7 +61,7 @@ void GPIO_switches_NVIC_interrupt_ativa() {
 }
 
 void GPIO_switches_IRQAn_interrupt_desativa(uint8_t n) {
-    PORT_PCR_REG(PORTA_BASE_PTR, n) &= ~PORT_PCR_ISF_MASK | PORT_PCR_IRQC(0b1111);
+    PORT_PCR_REG(PORTA_BASE_PTR, n) &= ~(PORT_PCR_ISF_MASK | PORT_PCR_IRQC(0b1111));
 }
 
 void GPIO_switches_IRQAn_interrupt_ativa(uint8_t n, uint8_t IRQC) {

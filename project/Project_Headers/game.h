@@ -17,6 +17,12 @@ typedef enum {
     PLAYER_2
 } player_t;
 
+typedef enum {
+    LEFT,
+    MIDDLE,
+    RIGHT
+} region_t;
+
 typedef struct {
     float x;
     float y;
