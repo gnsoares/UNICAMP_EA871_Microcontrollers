@@ -46,7 +46,7 @@ void game_loop(uint8_t sets_to_win) {
                 ISR_setState(INICIO);
                 // TODO: make this keep the last score
                 board_init_LCD(board);
-                board_startscreen_display();
+                board_start_screen_display();
                 break;
             case INICIO:
                 game_display_checkerboard();
@@ -94,8 +94,12 @@ void game_loop(uint8_t sets_to_win) {
             case WIN_SCREEN:
                 board_pwins_display(winner_match);
                 ISR_setState(WIN_VISU);
+                reset_time();
+                t1 = get_time();
             case WIN_VISU:
-                // TODO: espera 5s
+                while (get_time() - t1 < 5000) {
+                    game_display_checkerboard();
+                }
                 ISR_setState(PREPARA_INICIO);
                 break;
             default:
@@ -264,20 +268,21 @@ void board_update_score(board_t *board, player_t winner) {
             board->score[(p_idx + 1) % 2].points = 0;
             switch (board->score[p_idx].games) {
                 case 0:
-                case 1:
-                case 2:
-                case 3:
-                case 4:
-                    board->score[p_idx].games += 1;
-                    board_update_LCD_games(board);
-                    break;
-                case 5:
+                    // case 1:
+                    // case 2:
+                    // case 3:
+                    // case 4:
+                    //     board->score[p_idx].games += 1;
+                    //     board_update_LCD_games(board);
+                    //     break;
+                    // case 5:
                     // IMPROV: 2+ games diff
                     board->score[p_idx].games += 1;
                     board_update_LCD_games(board);
                     board->score[p_idx].games = 0;
                     board->score[(p_idx + 1) % 2].games = 0;
                     board->score[p_idx].sets += 1;
+                    break;
                 default:
                     break;
             }
@@ -375,16 +380,16 @@ void board_display(board_t *board) {
     I2C_OLED_redisplay();
 }
 
-void board_startscreen_display() {
+void board_start_screen_display() {
     uint8_t i, j, top = WAIT_SCREEN_INNER_SQ_YMIN + 6, left = WAIT_SCREEN_INNER_SQ_XMIN + 12;
     I2C_OLED_clrScrBuf();
 
     // 'P' character starting at x = 0
     for (i = left; i < left + 8; i++) {
         for (j = top; j < top + 8; j++) {
-            if (i == left + 0 || i == left + 1 ||
-                (i > left + 0 && i < left + 4 && j == top) ||
-                (i == left + 3 && j < top + 4) ||
+            if (i == left || i == left + 1 ||
+                (i > left && i < left + 6 && j == top) ||
+                (i == left + 5 && j < top + 4) ||
                 (j == top + 4 && i < left + 4)) {
                 I2C_OLED_setPixel(i, j);
             }
@@ -414,27 +419,10 @@ void board_startscreen_display() {
         }
     }
     // 'S' character starting at x = 24
-    for (i = left + 24; i < left + 32; i++) {
-        for (j = top; j < top + 8; j++) {
-            if ((i > left + 24 && i < left + 28 && (j == top || j == top + 7)) ||
-                (j == top + 3 && i > left + 24 && i < left + 28) ||
-                (i == left + 24 || i == left + 25) && (j < top + 4) ||
-                (i == left + 27 || i == left + 26) && (j >= top + 4)) {
-                I2C_OLED_setPixel(i, j);
-            }
-        }
-    }
+    I2C_OLED_writeS(left + 24, top);
+
     // 'S' character starting at x = 32
-    for (i = left + 32; i < left + 40; i++) {
-        for (j = top; j < top + 8; j++) {
-            if ((i > left + 32 && i < left + 36 && (j == top || j == top + 7)) ||
-                (j == top + 3 && i > left + 32 && i < left + 36) ||
-                (i == left + 32 || i == left + 33) && (j < top + 4) ||
-                (i == left + 35 || i == left + 34) && (j >= top + 4)) {
-                I2C_OLED_setPixel(i, j);
-            }
-        }
-    }
+    I2C_OLED_writeS(left + 32, top);
 
     // Update top position for the next line
     top += 12;
@@ -464,7 +452,7 @@ void board_startscreen_display() {
     for (i = left + 16; i < left + 24; i++) {
         for (j = top; j < top + 8; j++) {
             if ((i == left + 16 || i == left + 17 || i == left + 22 || i == left + 23) ||
-                (j == top || j == top + 7) && (i > left + 16 && i < left + 24) ||
+                ((j == top || j == top + 7) && (i > left + 16 && i < left + 24)) ||
                 (i > left + 19 && i < left + 24 && j > top + 3) ||
                 (i == left + 19 && j == top + 5)) {
                 I2C_OLED_setPixel(i, j);
@@ -507,7 +495,7 @@ void board_startscreen_display() {
     I2C_OLED_redisplay();
 }
 
-void board_pwins_display(player_t winner){
+void board_pwins_display(player_t winner) {
     uint8_t i, j, top = WAIT_SCREEN_INNER_SQ_YMIN + 6, left = WAIT_SCREEN_INNER_SQ_XMIN + 12;
     I2C_OLED_clrScrBuf();
 
@@ -515,27 +503,27 @@ void board_pwins_display(player_t winner){
     for (i = left; i < left + 8; i++) {
         for (j = top; j < top + 8; j++) {
             if (i == left + 0 || i == left + 1 ||
-                (i > left + 0 && i < left + 4 && j == top) ||
-                (i == left + 3 && j < top + 4) ||
+                (i > left + 0 && i < left + 6 && j == top) ||
+                (i == left + 5 && j < top + 4) ||
                 (j == top + 4 && i < left + 4)) {
                 I2C_OLED_setPixel(i, j);
             }
         }
     }
-    
-    if(winner==PLAYER_2){
-    // '2' character starting at x = 40
-    for (i = left + 8; i < left +16; i++) {
-        for (j = top; j < top + 8; j++) {
-            if ((j == top || j == top + 7) ||  // top and bottom lines
-                (i == left + 40 && j > top + 4) ||
-                (i == left + 47 && j < top + 3) ||
-                (j == top + 3 && i > left + 40 && i < left + 47)) {
-                I2C_OLED_setPixel(i, j);
+
+    if (winner == PLAYER_2) {
+        // '2' character starting at x = 40
+        for (i = left + 8; i < left + 16; i++) {
+            for (j = top; j < top + 8; j++) {
+                if ((j == top || j == top + 7) ||  // top and bottom lines
+                    (i == left + 8 && j > top + 4) ||
+                    (i == left + 15 && j < top + 3) ||
+                    (j == top + 3 && i > left + 8 && i < left + 15)) {
+                    I2C_OLED_setPixel(i, j);
+                }
             }
         }
-    }
-    }else if(winner==PLAYER_1){
+    } else if (winner == PLAYER_1) {
         // '1' character starting at x = 32
         for (i = left + 8; i < left + 16; i++) {
             for (j = top; j < top + 8; j++) {
@@ -546,9 +534,6 @@ void board_pwins_display(player_t winner){
         }
     }
 
-
-
-
     // Update top position for the next line
     top += 12;
     left += 8;
@@ -556,46 +541,34 @@ void board_pwins_display(player_t winner){
     // 'W' character starting at x = 32
     for (i = left; i < left + 8; i++) {
         for (j = top; j < top + 8; j++) {
-            if ((i == left + 32 || i == left + 39) ||
-                (j == top + 7 && (i == left + 33 || i == left + 38)) ||
-                ((j == top + 6 || j == top + 5) && (i == left + 34 || i == left + 37)) ||
-                ((j == top + 4 || j == top + 3) && (i == left + 35 || i == left + 36))) {
+            if ((i == left || i == left + 7) ||
+                (j == top + 7 && (i == left + 1 || i == left + 6)) ||
+                ((j == top + 6 || j == top + 5) && (i == left + 2 || i == left + 5)) ||
+                ((j == top + 4 || j == top + 3) && (i == left + 3 || i == left + 4))) {
                 I2C_OLED_setPixel(i, j);
             }
         }
     }
     // 'I' character starting at x = 0
-    for (i = left+8; i < left + 16; i++) {
+    for (i = left + 8; i < left + 16; i++) {
         for (j = top; j < top + 8; j++) {
-            if (i == left + 3 || i == left + 4) {
-                I2C_OLED_setPixel(i, j);
-            }
-        }
-    }
-    
-    // 'N' character starting at x = 32
-    for (i = left + 16; i < left + 24; i++) {
-        for (j = top; j < top + 8; j++) {
-            if (i == left + 32 || i == left + 39 || j == top + 7 || j == top) {
-                I2C_OLED_setPixel(i, j);
-            } else if (i - left == j - top) {
-                I2C_OLED_setPixel(i, j);
-            }
-        }
-    }
-    
-    // 'S' character starting at x = 32
-    for (i = left + 24; i < left + 32; i++) {
-        for (j = top; j < top + 8; j++) {
-            if ((i > left + 32 && i < left + 36 && (j == top || j == top + 7)) ||
-                (j == top + 3 && i > left + 32 && i < left + 36) ||
-                (i == left + 32 || i == left + 33) && (j < top + 4) ||
-                (i == left + 35 || i == left + 34) && (j >= top + 4)) {
+            if (i == left + 10 || i == left + 11) {
                 I2C_OLED_setPixel(i, j);
             }
         }
     }
 
+    // 'N' character starting at x = 32
+    for (i = left + 16; i < left + 24; i++) {
+        for (j = top; j < top + 8; j++) {
+            if (i == left + 16 || i == left + 23 || i - j == 16 + left - top) {
+                I2C_OLED_setPixel(i, j);
+            }
+        }
+    }
+
+    // 'S' character starting at x = 32
+    I2C_OLED_writeS(left + 26, top);
 
     I2C_OLED_redisplay();
 }

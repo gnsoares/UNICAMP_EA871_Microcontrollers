@@ -43,6 +43,9 @@ typedef struct {
 } board_t;
 
 void game_loop(uint8_t sets_to_win);
+void game_display_checkerboard(void);
+void board_start_screen_display(void);
+
 void board_reset(board_t *board);
 void board_update(board_t *board, uint32_t dt);
 player_t board_check_winner_point(board_t *board);
@@ -54,7 +57,6 @@ void board_init_LCD();
 void board_update_LCD_games(board_t *board);
 void board_update_LCD_points(board_t *board);
 void board_display(board_t *board);
-void board_startscreen_display();
-void board_pwins_display();
+void board_pwins_display(player_t winner);
 
 #endif

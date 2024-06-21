@@ -109,5 +109,6 @@ void I2C_OLED_setPixel(uint16_t x, uint16_t y);
  * @param[in] y coordinate
  */
 void I2C_OLED_clrPixel(uint16_t x, uint16_t y);
+void I2C_OLED_writeS(uint16_t x, uint16_t y);
 
 #endif /* I2C_OLED_H_ */
