@@ -48,7 +48,6 @@ void PORTA_IRQHandler() {
             // TODO: check timing of press
             board_hit_ball(&board);
             ISR_swapPlayer();
-            GPIO_switches_IRQAn_interrupt_ativa(5, BTN_IRQC);
         }
         PORTA_PCR4 |= PORT_PCR_ISF_MASK;  // w1c: limpa flag de interrupcao
     } else if (PORTA_PCR5 & PORT_PCR_ISF_MASK) {
@@ -58,7 +57,6 @@ void PORTA_IRQHandler() {
             // TODO: check timing of press
             board_hit_ball(&board);
             ISR_swapPlayer();
-            GPIO_switches_IRQAn_interrupt_ativa(4, BTN_IRQC);
         }
         PORTA_PCR5 |= PORT_PCR_ISF_MASK;  // w1c: limpa flag de interrupcao
     } else if (PORTA_PCR12 & PORT_PCR_ISF_MASK) {

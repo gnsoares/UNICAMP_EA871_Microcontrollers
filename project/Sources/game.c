@@ -148,8 +148,12 @@ void board_update(board_t *board, uint32_t dt) {
     } else {
         // passou por cima da rede: reseta bounces
         if (x_prev < SCREEN_WIDTH / 2 && board->ball_pos.x > SCREEN_WIDTH / 2) {
+            // passou da esquerda para a direita
+            GPIO_switches_IRQAn_interrupt_ativa(5, BTN_IRQC);
             board->bounces_left = 0;
         } else if (x_prev > SCREEN_WIDTH / 2 && board->ball_pos.x < SCREEN_WIDTH / 2) {
+            // passou da direita para a esquerda
+            GPIO_switches_IRQAn_interrupt_ativa(4, BTN_IRQC);
             board->bounces_right = 0;
         }
     }
