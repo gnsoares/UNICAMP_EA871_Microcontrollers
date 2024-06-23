@@ -1,8 +1,10 @@
 /**
  * @file I2C_OLED.c
  * @brief Functions related to the OLED display with controller SSD1306
- * @date 22/06/2023
+ * @date 21/06/2024
  * @author Wu Shin-Ting
+ * @author Gustavo Nascimento Soares
+ * @author João Pedro Souza Pascon
  */
 
 #include "I2C_OLED.h"

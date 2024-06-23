@@ -1,8 +1,10 @@
 /**
  * @file I2C_OLED.h
  * @brief Prototypes, macros defined to the OLED display
- * @date 22/06/2023
+ * @date 21/06/2024
  * @author Wu Shin-Ting
+ * @author Gustavo Nascimento Soares
+ * @author João Pedro Souza Pascon
  * @note https://github.com/aleksey-makarov/stm32/blob/master/liboled/oled.c
  * @note https://www.instructables.com/Getting-Started-With-OLED-Displays/
  */
