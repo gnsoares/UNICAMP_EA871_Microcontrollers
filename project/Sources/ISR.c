@@ -16,7 +16,6 @@ static state_t state;
 static player_t player = PLAYER_1;
 static board_t board;
 
-// TODO: review this function
 void FTM1_IRQHandler() {
     static uint16_t tempo = 0;
     uint16_t valor;
@@ -45,7 +44,6 @@ void PORTA_IRQHandler() {
         if (state == PLAYER_TURN && player == PLAYER_1) {
             TPM_habilitaInterrupTOF(1);  // play hit sound
             GPIO_switches_IRQAn_interrupt_desativa(4);
-            // TODO: check timing of press
             board_hit_ball(&board);
             ISR_swapPlayer();
         }
@@ -54,7 +52,6 @@ void PORTA_IRQHandler() {
         if (state == PLAYER_TURN && player == PLAYER_2) {
             TPM_habilitaInterrupTOF(1);  // play hit sound
             GPIO_switches_IRQAn_interrupt_desativa(5);
-            // TODO: check timing of press
             board_hit_ball(&board);
             ISR_swapPlayer();
         }

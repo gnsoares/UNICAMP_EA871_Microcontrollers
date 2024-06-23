@@ -52,7 +52,7 @@ player_t board_check_winner_point(board_t *board);
 player_t board_check_winner_match(board_t *board, uint8_t sets_to_win);
 void board_reset_ball(board_t *board);
 void board_hit_ball(board_t *board);
-void board_update_score(board_t *board, player_t player);
+void board_update_score(board_t *board, player_t winner, uint8_t games_to_set);
 void board_init_LCD();
 void board_update_LCD_games(board_t *board);
 void board_update_LCD_points(board_t *board);
