@@ -57,6 +57,6 @@ void board_init_LCD();
 void board_update_LCD_games(board_t *board);
 void board_update_LCD_points(board_t *board);
 void board_display(board_t *board);
-void board_pwins_display(player_t winner);
+void board_winner_screen_display(player_t winner);
 
 #endif

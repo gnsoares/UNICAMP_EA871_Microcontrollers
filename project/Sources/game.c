@@ -92,7 +92,7 @@ void game_loop(uint8_t sets_to_win) {
                 ISR_setState(winner_match != PLAYER_NONE ? WIN_SCREEN : LAUNCH_BALL);
                 break;
             case WIN_SCREEN:
-                board_pwins_display(winner_match);
+                board_winner_screen_display(winner_match);
                 ISR_setState(WIN_VISU);
                 reset_time();
                 t1 = get_time();
@@ -384,191 +384,49 @@ void board_start_screen_display() {
     uint8_t i, j, top = WAIT_SCREEN_INNER_SQ_YMIN + 6, left = WAIT_SCREEN_INNER_SQ_XMIN + 12;
     I2C_OLED_clrScrBuf();
 
-    // 'P' character starting at x = 0
-    for (i = left; i < left + 8; i++) {
-        for (j = top; j < top + 8; j++) {
-            if (i == left || i == left + 1 ||
-                (i > left && i < left + 6 && j == top) ||
-                (i == left + 5 && j < top + 4) ||
-                (j == top + 4 && i < left + 4)) {
-                I2C_OLED_setPixel(i, j);
-            }
-        }
-    }
-    // 'R' character starting at x = 8
-    for (i = left + 8; i < left + 16; i++) {
-        for (j = top; j < top + 8; j++) {
-            if (i == left + 8 || i == left + 9 ||
-                (i > left + 8 && i < left + 12 && j == top) ||
-                (i == left + 11 && j < top + 4) ||
-                (j == top + 4 && i < left + 12) ||
-                (i > left + 9 && i == left + j - top + 8)) {
-                I2C_OLED_setPixel(i, j);
-            }
-        }
-    }
-    // 'E' character starting at x = 16
-    for (i = left + 16; i < left + 24; i++) {
-        for (j = top; j < top + 8; j++) {
-            if (i == left + 16 || i == left + 17 ||
-                (i > left + 16 && i < left + 20 && j == top) ||
-                (j == top + 4 && i < left + 20) ||
-                (i > left + 16 && i < left + 20 && j == top + 7)) {
-                I2C_OLED_setPixel(i, j);
-            }
-        }
-    }
-    // 'S' character starting at x = 24
-    I2C_OLED_writeS(left + 24, top);
-
-    // 'S' character starting at x = 32
-    I2C_OLED_writeS(left + 32, top);
+    // PRESS
+    I2C_OLED_write_P(left, top);
+    I2C_OLED_write_R(left + 8, top);
+    I2C_OLED_write_E(left + 16, top);
+    I2C_OLED_write_S(left + 24, top);
+    I2C_OLED_write_S(left + 32, top);
 
     // Update top position for the next line
     top += 12;
     left += 8;
 
-    // 'I' character starting at x = 0
-    for (i = left; i < left + 8; i++) {
-        for (j = top; j < top + 8; j++) {
-            if (i == left + 3 || i == left + 4) {
-                I2C_OLED_setPixel(i, j);
-            }
-        }
-    }
-    // 'R' character starting at x = 8
-    for (i = left + 8; i < left + 16; i++) {
-        for (j = top; j < top + 8; j++) {
-            if (i == left + 8 || i == left + 9 ||
-                (i > left + 8 && i < left + 12 && j == top) ||
-                (i == left + 11 && j < top + 4) ||
-                (j == top + 4 && i < left + 12) ||
-                (i > left + 9 && i == left + j - top + 8)) {
-                I2C_OLED_setPixel(i, j);
-            }
-        }
-    }
-    // 'Q' character starting at x = 16
-    for (i = left + 16; i < left + 24; i++) {
-        for (j = top; j < top + 8; j++) {
-            if ((i == left + 16 || i == left + 17 || i == left + 22 || i == left + 23) ||
-                ((j == top || j == top + 7) && (i > left + 16 && i < left + 24)) ||
-                (i > left + 19 && i < left + 24 && j > top + 3) ||
-                (i == left + 19 && j == top + 5)) {
-                I2C_OLED_setPixel(i, j);
-            }
-        }
-    }
-    left += 2;
-    // 'A' character starting at x = 24
-    for (i = left + 24; i < left + 32; i++) {
-        for (j = top; j < top + 8; j++) {
-            if ((j == top || j == top + 5) ||  // top and middle line
-                (i == left + 24 || i == left + 25 || i == left + 30 || i == left + 31) || 0
-                // (i > left + 24 && i < left + 32 && j == top + 3) ||
-                // (i == left + j - top + 24) || (i == left + 7 - j + top + 24)
-            ) {
-                I2C_OLED_setPixel(i, j);
-            }
-        }
-    }
-    // '1' character starting at x = 32
-    for (i = left + 32; i < left + 40; i++) {
-        for (j = top; j < top + 8; j++) {
-            if (i == left + 34 || i == left + 35) {
-                I2C_OLED_setPixel(i, j);
-            }
-        }
-    }
-    // '2' character starting at x = 40
-    for (i = left + 40; i < left + 48; i++) {
-        for (j = top; j < top + 8; j++) {
-            if ((j == top || j == top + 7) ||  // top and bottom lines
-                (i == left + 40 && j > top + 4) ||
-                (i == left + 47 && j < top + 3) ||
-                (j == top + 3 && i > left + 40 && i < left + 47)) {
-                I2C_OLED_setPixel(i, j);
-            }
-        }
-    }
+    // IRQA12
+    I2C_OLED_write_I(left, top);
+    I2C_OLED_write_R(left + 8, top);
+    I2C_OLED_write_Q(left + 16, top);
+    I2C_OLED_write_A(left + 26, top);
+    I2C_OLED_write_I(left + 34, top);
+    I2C_OLED_write_2(left + 42, top);
 
     I2C_OLED_redisplay();
 }
 
-void board_pwins_display(player_t winner) {
+void board_winner_screen_display(player_t winner) {
     uint8_t i, j, top = WAIT_SCREEN_INNER_SQ_YMIN + 6, left = WAIT_SCREEN_INNER_SQ_XMIN + 12;
     I2C_OLED_clrScrBuf();
 
-    // 'P' character starting at x = 0
-    for (i = left; i < left + 8; i++) {
-        for (j = top; j < top + 8; j++) {
-            if (i == left + 0 || i == left + 1 ||
-                (i > left + 0 && i < left + 6 && j == top) ||
-                (i == left + 5 && j < top + 4) ||
-                (j == top + 4 && i < left + 4)) {
-                I2C_OLED_setPixel(i, j);
-            }
-        }
-    }
-
+    // P1 / P2
+    I2C_OLED_write_P(left, top);
     if (winner == PLAYER_2) {
-        // '2' character starting at x = 40
-        for (i = left + 8; i < left + 16; i++) {
-            for (j = top; j < top + 8; j++) {
-                if ((j == top || j == top + 7) ||  // top and bottom lines
-                    (i == left + 8 && j > top + 4) ||
-                    (i == left + 15 && j < top + 3) ||
-                    (j == top + 3 && i > left + 8 && i < left + 15)) {
-                    I2C_OLED_setPixel(i, j);
-                }
-            }
-        }
+        I2C_OLED_write_2(left + 8, top);
     } else if (winner == PLAYER_1) {
-        // '1' character starting at x = 32
-        for (i = left + 8; i < left + 16; i++) {
-            for (j = top; j < top + 8; j++) {
-                if (i == left + 10 || i == left + 11) {
-                    I2C_OLED_setPixel(i, j);
-                }
-            }
-        }
+        I2C_OLED_write_I(left + 8, top);
     }
 
     // Update top position for the next line
     top += 12;
     left += 8;
 
-    // 'W' character starting at x = 32
-    for (i = left; i < left + 8; i++) {
-        for (j = top; j < top + 8; j++) {
-            if ((i == left || i == left + 7) ||
-                (j == top + 7 && (i == left + 1 || i == left + 6)) ||
-                ((j == top + 6 || j == top + 5) && (i == left + 2 || i == left + 5)) ||
-                ((j == top + 4 || j == top + 3) && (i == left + 3 || i == left + 4))) {
-                I2C_OLED_setPixel(i, j);
-            }
-        }
-    }
-    // 'I' character starting at x = 0
-    for (i = left + 8; i < left + 16; i++) {
-        for (j = top; j < top + 8; j++) {
-            if (i == left + 10 || i == left + 11) {
-                I2C_OLED_setPixel(i, j);
-            }
-        }
-    }
-
-    // 'N' character starting at x = 32
-    for (i = left + 16; i < left + 24; i++) {
-        for (j = top; j < top + 8; j++) {
-            if (i == left + 16 || i == left + 23 || i - j == 16 + left - top) {
-                I2C_OLED_setPixel(i, j);
-            }
-        }
-    }
-
-    // 'S' character starting at x = 32
-    I2C_OLED_writeS(left + 26, top);
+    // WINS
+    I2C_OLED_write_W(left, top);
+    I2C_OLED_write_I(left + 8, top);
+    I2C_OLED_write_N(left + 16, top);
+    I2C_OLED_write_S(left + 26, top);
 
     I2C_OLED_redisplay();
 }
