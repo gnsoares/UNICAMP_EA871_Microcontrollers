@@ -32,26 +32,6 @@
  */
 uint8_t I2C_Init(uint8_t x, uint8_t alt, uint8_t mult, uint8_t icr);
 /**
- * @brief disables transmit acknowledgement (I2Cx_C1_TXAK)
- * @param[in] x I2Cx module
- */
-void I2C_DisableAck(uint8_t x);
-/**
- * @brief disables transmit acknowledgement
- * @param[in] x I2Cx module
- */
-void I2C_EnableAck(uint8_t x);
-/**
- * @brief  generates a repeated START condition provided it is the current master (I2Cx_C1_RSTA)
- * @param[in] x I2Cx module
- */
-void I2C_RepeatedStart(uint8_t x);
-/**
- * @brief changes to Receiver mode (I2Cx_C1_TX)
- * @param[in] x I2Cx module
- */
-void I2C_EnterRxMode(uint8_t x);
-/**
  * @brief sets START condition (changes to Transmit and Master modes)
  * @param[in] x I2Cx module
  */
