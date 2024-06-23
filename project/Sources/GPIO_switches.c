@@ -4,6 +4,7 @@
  * @date 12/04/2024
  * @author Wu Shin-Ting
  * @author Gustavo Nascimento Soares
+ * @author João Pedro Souza Pascon
  */
 
 #include "mcu.h"

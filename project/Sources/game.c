@@ -2,7 +2,7 @@
  * @file game.c
  * @author Gustavo Nascimento Soares
  * @author João Pedro Souza Pascon
- * @brief
+ * @brief Funcoes de controle do fluxo do jogo
  * @date 2024-06-15
  */
 

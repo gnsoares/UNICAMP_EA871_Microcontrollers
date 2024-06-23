@@ -2,7 +2,7 @@
  * @file mcu.h
  * @author Gustavo Nascimento Soares
  * @author João Pedro Souza Pascon
- * @brief
+ * @brief Prototipos, macros e tipos de dados de game
  * @date 2024-06-15
  */
 

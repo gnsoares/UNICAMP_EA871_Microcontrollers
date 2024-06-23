@@ -2,7 +2,7 @@
  * @file mcu.c
  * @author Gustavo Nascimento Soares
  * @author João Pedro Souza Pascon
- * @brief
+ * @brief Funcoes de interacao com o microcontrolador
  * @date 2024-06-15
  */
 

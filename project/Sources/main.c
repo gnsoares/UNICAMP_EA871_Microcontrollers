@@ -2,7 +2,7 @@
  * @file main.c
  * @author Gustavo Nascimento Soares
  * @author João Pedro Souza Pascon
- * @brief
+ * @brief Adaptacao do jogo Tennis for Two para tela OLED e o microcontrolador FRDM-KL25Z4
  * @date 2024-06-15
  */
 
