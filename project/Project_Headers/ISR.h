@@ -38,9 +38,28 @@ void ISR_setState(state_t s);
  */
 state_t ISR_getState(void);
 
+/**
+ * @brief Atualiza jogador atual
+ *
+ * @param[in] p novo jogador
+ */
 void ISR_setPlayer(player_t p);
+/**
+ * @brief Retorna jogador atual
+ *
+ * @return jogador atual
+ */
 player_t ISR_getPlayer(void);
+/**
+ * @brief Troca jogador atual
+ *
+ */
 void ISR_swapPlayer(void);
+/**
+ * @brief Retorna ponteiro para estrutura do estado da partida
+ *
+ * @return ponteiro para estrutura do estado da partida
+ */
 board_t* ISR_getBoard(void);
 
 #endif /* ISR_H_ */

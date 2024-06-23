@@ -103,15 +103,77 @@ void I2C_OLED_setPixel(uint16_t x, uint16_t y);
  * @param[in] y coordinate
  */
 void I2C_OLED_clrPixel(uint16_t x, uint16_t y);
+/**
+ * @brief Escreve a letra A na posicao desejada na tela OLED
+ *
+ * @param[in] x posicao horizontal (0-127)
+ * @param[in] y posicao vertical (0-63)
+ */
 void I2C_OLED_write_A(uint16_t x, uint16_t y);
+/**
+ * @brief Escreve a letra E na posicao desejada na tela OLED
+ *
+ * @param[in] x posicao horizontal (0-127)
+ * @param[in] y posicao vertical (0-63)
+ */
 void I2C_OLED_write_E(uint16_t x, uint16_t y);
+/**
+ * @brief Escreve a letra I na posicao desejada na tela OLED
+ *
+ * Pode ser usado para o numero 1
+ *
+ * @param[in] x posicao horizontal (0-127)
+ * @param[in] y posicao vertical (0-63)
+ */
 void I2C_OLED_write_I(uint16_t x, uint16_t y);
+/**
+ * @brief Escreve a letra N na posicao desejada na tela OLED
+ *
+ * @param[in] x posicao horizontal (0-127)
+ * @param[in] y posicao vertical (0-63)
+ */
 void I2C_OLED_write_N(uint16_t x, uint16_t y);
+/**
+ * @brief Escreve a letra P na posicao desejada na tela OLED
+ *
+ * @param[in] x posicao horizontal (0-127)
+ * @param[in] y posicao vertical (0-63)
+ */
 void I2C_OLED_write_P(uint16_t x, uint16_t y);
+/**
+ * @brief Escreve a letra Q na posicao desejada na tela OLED
+ *
+ * @param[in] x posicao horizontal (0-127)
+ * @param[in] y posicao vertical (0-63)
+ */
 void I2C_OLED_write_Q(uint16_t x, uint16_t y);
+/**
+ * @brief Escreve a letra R na posicao desejada na tela OLED
+ *
+ * @param[in] x posicao horizontal (0-127)
+ * @param[in] y posicao vertical (0-63)
+ */
 void I2C_OLED_write_R(uint16_t x, uint16_t y);
+/**
+ * @brief Escreve a letra S na posicao desejada na tela OLED
+ *
+ * @param[in] x posicao horizontal (0-127)
+ * @param[in] y posicao vertical (0-63)
+ */
 void I2C_OLED_write_S(uint16_t x, uint16_t y);
+/**
+ * @brief Escreve a letra W na posicao desejada na tela OLED
+ *
+ * @param[in] x posicao horizontal (0-127)
+ * @param[in] y posicao vertical (0-63)
+ */
 void I2C_OLED_write_W(uint16_t x, uint16_t y);
+/**
+ * @brief Escreve o numeral 2 na posicao desejada na tela OLED
+ *
+ * @param[in] x posicao horizontal (0-127)
+ * @param[in] y posicao vertical (0-63)
+ */
 void I2C_OLED_write_2(uint16_t x, uint16_t y);
 
 #endif /* I2C_OLED_H_ */

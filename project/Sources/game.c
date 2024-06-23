@@ -95,7 +95,7 @@ void game_loop(uint8_t sets_to_win) {
                 ISR_setState(winner_match != PLAYER_NONE ? WIN_SCREEN : LAUNCH_BALL);
                 break;
             case WIN_SCREEN:
-                board_winner_screen_display(winner_match);
+                game_winner_screen_display(winner_match);
                 ISR_setState(WIN_VISU);
                 reset_time();
                 t1 = get_time();
@@ -412,7 +412,7 @@ void board_start_screen_display() {
     I2C_OLED_redisplay();
 }
 
-void board_winner_screen_display(player_t winner) {
+void game_winner_screen_display(player_t winner) {
     uint8_t i, j, top = WAIT_SCREEN_INNER_RECT_YMIN + 6, left = WAIT_SCREEN_INNER_RECT_XMIN + 12;
     I2C_OLED_clrScrBuf();
 

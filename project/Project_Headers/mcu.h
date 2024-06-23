@@ -23,8 +23,21 @@
 #define SCREEN_HEIGHT 64
 #define BTN_IRQC 0b1010  // falling edge
 
+/**
+ * @brief Configuracao basica do microncontrolador e perifericos
+ *
+ */
 void config(void);
+/**
+ * @brief Reinicia o RTC em zero
+ *
+ */
 void reset_time(void);
+/**
+ * @brief Obtem o tempo medido pelo modulo RTC
+ *
+ * @return tempo em milissegundos
+ */
 uint32_t get_time(void);
 
 #endif
