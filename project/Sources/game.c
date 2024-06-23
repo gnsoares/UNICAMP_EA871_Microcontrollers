@@ -47,7 +47,7 @@ void game_loop(uint8_t sets_to_win) {
                 GPIO_switches_IRQAn_interrupt_ativa(12, BTN_IRQC);
                 ISR_setState(INICIO);
                 board_init_LCD(board);
-                board_start_screen_display();
+                game_start_screen_display();
                 break;
             case INICIO:
                 game_display_checkerboard();
@@ -191,17 +191,17 @@ void board_update(board_t *board, uint32_t dt) {
         if (region_prev != MIDDLE && board->ball_pos.x > SCREEN_WIDTH / 2 - 5 && board->ball_pos.x < SCREEN_WIDTH / 2 + 5) {
             // bola no meio
             region_prev = MIDDLE;
-            board->bounces_left = 0;
-            board->bounces_right = 0;
             GPIO_switches_IRQAn_interrupt_desativa(4);
             GPIO_switches_IRQAn_interrupt_desativa(5);
         } else if (region_prev == MIDDLE && board->ball_pos.x > SCREEN_WIDTH / 2 + 5) {
             // passou da esquerda para a direita
             region_prev = RIGHT;
+            board->bounces_right = 0;
             GPIO_switches_IRQAn_interrupt_ativa(5, BTN_IRQC);
         } else if (region_prev == MIDDLE && board->ball_pos.x < SCREEN_WIDTH / 2 - 5) {
             // passou da direita para a esquerda
             region_prev = LEFT;
+            board->bounces_left = 0;
             GPIO_switches_IRQAn_interrupt_ativa(4, BTN_IRQC);
         }
     }
@@ -280,17 +280,16 @@ void board_update_score(board_t *board, player_t winner, uint8_t games_to_set) {
             board->score[p_idx].points = 0;
             board->score[(p_idx + 1) % 2].points = 0;
 
+            // atualiza numero de games
+            board->score[p_idx].games += 1;
+            board_update_LCD_games(board);
+
             // verifica se player ganhou set
-            if (board->score[p_idx].games == games_to_set - 1) {
+            if (board->score[p_idx].games == games_to_set) {
                 // IMPROV: 2+ games diff
-                board->score[p_idx].games += 1;
-                board_update_LCD_games(board);
                 board->score[p_idx].games = 0;
                 board->score[(p_idx + 1) % 2].games = 0;
                 board->score[p_idx].sets += 1;
-            } else {
-                board->score[p_idx].games += 1;
-                board_update_LCD_games(board);
             }
             break;
         default:
@@ -386,8 +385,8 @@ void board_display(board_t *board) {
     I2C_OLED_redisplay();
 }
 
-void board_start_screen_display() {
-    uint8_t i, j, top = WAIT_SCREEN_INNER_RECT_YMIN + 6, left = WAIT_SCREEN_INNER_RECT_XMIN + 12;
+void game_start_screen_display() {
+    uint8_t top = WAIT_SCREEN_INNER_RECT_YMIN + 6, left = WAIT_SCREEN_INNER_RECT_XMIN + 12;
     I2C_OLED_clrScrBuf();
 
     // PRESS
@@ -413,7 +412,7 @@ void board_start_screen_display() {
 }
 
 void game_winner_screen_display(player_t winner) {
-    uint8_t i, j, top = WAIT_SCREEN_INNER_RECT_YMIN + 6, left = WAIT_SCREEN_INNER_RECT_XMIN + 12;
+    uint8_t top = WAIT_SCREEN_INNER_RECT_YMIN + 6, left = WAIT_SCREEN_INNER_RECT_XMIN + 12;
     I2C_OLED_clrScrBuf();
 
     // P1 / P2

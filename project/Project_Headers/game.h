@@ -60,7 +60,7 @@ void game_display_checkerboard(void);
  * @brief Mostra no OLED na regiao reservada para informacoes como iniciar a partida
  *
  */
-void board_start_screen_display(void);
+void game_start_screen_display(void);
 /**
  * @brief Mostra no OLED na regiao reservada para informacoes o jogador vencedor
  *
