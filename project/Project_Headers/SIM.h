@@ -29,9 +29,4 @@ void SIM_setaFLLPLL(uint8_t pll);
  */
 void SIM_setaTPMSRC(uint8_t src);
 
-/**
- * @brief Resetar os registradores
- */
-void SIM_reseta();
-
 #endif /* SIM_H_ */

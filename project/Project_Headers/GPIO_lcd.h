@@ -48,20 +48,4 @@ void GPIO_LCD_init();
  */
 void GPIO_LCD_escreve_string(uint8_t end, uint8_t *str);
 
-/*!
- * @brief Transfere o endereco DDRAM
- * @param[in] end endereco da memoria DDRAM
- *
- * @note Consulta os enderecos de cada celula das duas linhas na
- * @note secao 11 em ftp://ftp.dca.fee.unicamp.br/pub/docs/ea079/datasheet/AC162A.pdf
- */
-void GPIO_LCD_set_end_DDRAM(uint8_t end);
-
-/*!
- * @brief Constroi um bitmap em CGRAM a partir do endereco end*8 mapeado em end de CGROM
- * @param[in] end CGROM
- * @param[in] bitmap endereco de 8 bytes que definem o bitmap
- */
-void GPIO_LCD_escreve_bitmap(uint8_t end, uint8_t *bitmap);
-
 #endif /* GPIO_LATCH_LCD_H_ */

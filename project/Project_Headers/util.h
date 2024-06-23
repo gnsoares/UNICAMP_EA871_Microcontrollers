@@ -23,19 +23,4 @@
  */
 void espera_2us(uint32_t n);
 
-/**
- * @brief Inverte uma string de tamanho especificado
- * @param[out] str apontador para a string a ser invertida
- * @param[in] len tamanho da string invertida
- */
-void reverse(char* str, int len);
-
-/**
- * @brief Converte um inteiro para um String
- * @param[in] x inteiro para ser convertido
- * @param[out] str apontador para a string que recebera o inteiro
- * @param[in] d numero minimo de digitos
- */
-int intToStr(int x, char str[], int d);
-
 #endif /* UTIL_H_ */

@@ -59,27 +59,3 @@ void espera_2us(uint32_t n) {
         :
         :);
 }
-
-void reverse(char* str, int len) {
-    int i = 0, j = len - 1, temp;
-    while (i < j) {
-        temp = str[i];
-        str[i] = str[j];
-        str[j] = temp;
-        i++;
-        j--;
-    }
-}
-
-int intToStr(int x, char str[], int d) {
-    int i = 0;
-    do {
-        str[i++] = (x % 10) + '0';
-        x = x / 10;
-    } while (x);
-
-    while (i < d) str[i++] = '0';
-    reverse(str, i);
-    str[i] = '\0';
-    return i;
-}

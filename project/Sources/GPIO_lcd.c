@@ -87,38 +87,3 @@ void GPIO_LCD_escreve_string(uint8_t end, uint8_t* str) {
         str++;
     }
 }
-
-void GPIO_LCD_escreve_bitmap(uint8_t end, uint8_t* bitmap) {
-    /*!
-     * Converte end para endereco da memoria CGRAM (end*8) e codifica
-     * o endereco na instrucao "Set CGRAM Address".
-     */
-    uint8_t tmp = 0b01000000 | (end * 8);
-
-    /*!
-     * Seta end*8 no registrador de endereco de CGRAM por um tempo de processamento
-     * maior que 39us (39/2 = 20)
-     */
-    GPIO_LCD_set_RS(COMANDO);
-    GPIO_LCD_escreve_byte(tmp, 20);
-
-    /*!
-     * Grava os 8 bytes do vetor bitmap a partir do endereco setado. O tempo de escrita
-     * de cada byte eh maior que 43us (43/2 = 22)
-     */
-    GPIO_LCD_set_RS(DADO);
-    uint8_t i;
-    for (i = 0; i < 8; i++) {
-        GPIO_LCD_escreve_byte(bitmap[i], 22);
-    }
-}
-
-void GPIO_LCD_set_end_DDRAM(uint8_t end) {
-    // Codifica a instrucao do endereco do DDRAM para LCD: 0b1XXXXXX, onde XXXXXXX eh o endereco
-    //  de DDRAM (do visor)
-    uint8_t tmp = 0b10000000 | end;
-
-    // Envia a instrucao para setar o end de DDRAM
-    GPIO_LCD_set_RS(COMANDO);
-    GPIO_LCD_escreve_byte(tmp, 22);
-}

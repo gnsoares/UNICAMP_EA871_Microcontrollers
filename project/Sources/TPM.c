@@ -111,27 +111,10 @@ void TPM_desabilitaInterrupTOF(uint8_t x) {
     TPM[x]->SC &= ~TPM_SC_TOIE_MASK;  // habilitar a interrupcao TOF
 }
 
-void TPM_habilitaInterrupCH(uint8_t x, uint8_t n) {
-    TPM[x]->CONTROLS[n].CnSC |= (TPM_CnSC_CHF_MASK |   // resetar flag
-                                 TPM_CnSC_CHIE_MASK);  // habilitar a interrupcao do canal
-}
-
-void TPM_desabilitaInterrupCH(uint8_t x, uint8_t n) {
-    TPM[x]->CONTROLS[n].CnSC &= ~TPM_CnSC_CHIE_MASK;  // desabilitar a interrupcao do canal
-}
-
 void TPM_setaMOD(uint8_t x, uint16_t mod) {
     TPM[x]->MOD = TPM_MOD_MOD(mod);
 }
 
 void TPM_setaCnV(uint8_t x, uint8_t n, uint16_t valor) {
     TPM[x]->CONTROLS[n].CnV = TPM_CnV_VAL(valor);
-}
-
-void TPM_ativaContador(uint8_t x) {
-    TPM[x]->SC |= TPM_SC_CMOD(1);  // ativar o contador LPTPM
-}
-
-void TPM_desativaContador(uint8_t x) {
-    TPM[x]->SC &= ~TPM_SC_CMOD(1);  // desativar o contador LPTPM
 }

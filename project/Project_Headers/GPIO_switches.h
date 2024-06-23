@@ -19,17 +19,6 @@
  * @param[in] prioridade prioridade de atendimento
  */
 void GPIO_switches_init(uint8_t prioridade);
-
-/**
- * @brief Desativa IRQ30, sem limpar as pendencias
- */
-void GPIO_switches_NVIC_interrupt_desativa();
-
-/**
- * @brief Reativa IRQ30, sem limpar as pendencias
- */
-void GPIO_switches_NVIC_interrupt_ativa();
-
 void GPIO_switches_IRQAn_interrupt_desativa(uint8_t n);
 void GPIO_switches_IRQAn_interrupt_ativa(uint8_t n, uint8_t IRQC);
 

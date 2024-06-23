@@ -82,14 +82,6 @@ void I2C_initConSSD1306(void);
  */
 void I2C_initOLED(void);
 /**
- * @brief Write a byte to OLED
- */
-uint8_t I2C_writeOLED_Byte(control_byte c, uint8_t data);
-/**
- * @brief Write multiple bytes to OLED
- */
-uint8_t I2C_writeOLED(control_byte c, uint32_t n_data, uint8_t *data);
-/**
  * @brief Clear screen buffer
  */
 void I2C_OLED_clrScrBuf();

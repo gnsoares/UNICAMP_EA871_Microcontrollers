@@ -52,14 +52,6 @@ void GPIO_switches_init(uint8_t prioridade) {
     return;
 }
 
-void GPIO_switches_NVIC_interrupt_desativa() {
-    NVIC_ICER = NVIC_ICER_CLRENA(GPIO_PIN(30));  // Desativa IRQ30 (PORTA)
-}
-
-void GPIO_switches_NVIC_interrupt_ativa() {
-    NVIC_ISER = NVIC_ISER_SETENA(GPIO_PIN(30));  // Reativa IRQ30 (PORTA)
-}
-
 void GPIO_switches_IRQAn_interrupt_desativa(uint8_t n) {
     PORT_PCR_REG(PORTA_BASE_PTR, n) &= ~(PORT_PCR_ISF_MASK | PORT_PCR_IRQC(0b1111));
 }

@@ -24,24 +24,9 @@ void RTClpo_init() {
     RTC_SR |= RTC_SR_TCE_MASK;  // habilita o relogio
 }
 
-uint32_t RTClpo_getTime(uint32_t *seconds) {
-    //	*seconds = (RTC_TSR*32768)/1000+(RTC_TPR/1000);  //!< reajustar a contagem para segundos
-    *seconds = ((RTC_TSR * 32768) + RTC_TPR) / 1000;  //!< reajustar a contagem para segundos
-
-    return *seconds;
-}
-
 void RTClpo_setTime(uint32_t seconds) {
     RTC_SR &= ~RTC_SR_TCE_MASK;          //!< desabilita o modulo para atualizar prescaler e contador
     RTC_TPR = (seconds * 1000) % 32768;  //!< reajustar segundos para a frequencia 1kHz
     RTC_TSR = (seconds * 1000) / 32768;
     RTC_SR |= RTC_SR_TCE_MASK;  //!< habilitar o modulo
-}
-
-void RTC_habilita() {
-    RTC_SR |= RTC_SR_TCE_MASK;  // habilita o relogio
-}
-
-void RTC_desabilita() {
-    RTC_SR &= ~RTC_SR_TCE_MASK;  // desabilita o relogio
 }

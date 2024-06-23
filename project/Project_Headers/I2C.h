@@ -80,50 +80,6 @@ void I2C_WaitStop(uint8_t x);
  */
 void I2C_WriteByte(uint8_t x, uint8_t data);
 /**
- * @brief reads one byte
- * @param[in] x I2Cx module
- * @return read byte
- */
-uint8_t I2C_ReadByte(uint8_t x);
-/**
- * @brief sends a byte to a slave
- * @param[in] x I2Cx module
- * @param[in] SlaveAddress
- * @param[in] data in byte
- */
-void I2C_WriteData(uint8_t x, uint8_t SlaveAddress, uint8_t data);
-/**
- * @brief reads a byte from a slave
- * @param[in] x I2Cx module
- * @param[in] SlaveAddress
- * @return read data
- */
-uint8_t I2C_ReadData(uint8_t x, uint8_t SlaveAddress);
-/**
- * @brief writes a byte in a register of a slave
- * @param[in] x I2Cx module
- * @param[in] SlaveAddress
- * @param[in] RegisterAddress
- * @param[in] data in byte
- */
-void I2C_WriteRegister(uint8_t x, uint8_t SlaveAddress, uint8_t RegisterAddress, uint8_t data);
-/**
- * @brief reads a byte from a register of a slave
- * @param[in] x I2Cx module
- * @param[in] SlaveAddress
- * @param[in] RegisterAddress
- * @return read data (byte)
- */
-uint8_t I2C_ReadRegister(uint8_t x, uint8_t SlaveAddress, uint8_t RegisterAddress);
-/**
- * @brief reads multiple bytes from a slave
- * @param[in] x I2Cx module
- * @param[in] SlaveAddress
- * @param[in] n_data number of bytes
- * @param[in] *res data vector address
- */
-void I2C_ReadMultData(uint8_t x, uint8_t SlaveAddress, uint32_t n_data, uint8_t *res);
-/**
  * @brief writes multiple bytes to a slave
  * @param[in] x I2Cx module
  * @param[in] SlaveAddress
@@ -131,23 +87,5 @@ void I2C_ReadMultData(uint8_t x, uint8_t SlaveAddress, uint32_t n_data, uint8_t 
  * @param[in] *data data vector address
  */
 void I2C_WriteMultData(uint8_t x, uint8_t SlaveAddress, uint32_t n_data, uint8_t *data);
-/**
- * @brief reads multiple bytes from a register of a slave
- * @param[in] x I2Cx module
- * @param[in] SlaveAddress
- * @param[in] RegisterAddress
- * @param[in] n_data number of bytes
- * @param[in] *res data vector address
- */
-void I2C_ReadMultRegister(uint8_t x, uint8_t SlaveAddress, uint8_t RegisterAddress, uint32_t n_data, uint8_t *res);
-/**
- * @brief writes multiple bytes to a register of a slave
- * @param[in] x I2Cx module
- * @param[in] SlaveAddress
- * @param[in] RegisterAddress
- * @param[in] n_data number of bytes
- * @param[in] *data data vector address
- */
-void I2C_WriteMultRegister(uint8_t x, uint8_t SlaveAddress, uint8_t RegisterAddress, uint32_t n_data, uint8_t *data);
 
 #endif /* I2C_H_ */
